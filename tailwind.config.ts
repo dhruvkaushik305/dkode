@@ -11,6 +11,10 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        "dk-blue": "#1648ff",
+      },
+      fontFamily: {
+        rosario: ["var(--font-rosario)"],
       },
     },
   },

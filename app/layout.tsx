@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { rosario } from "./fonts";
 
 export const metadata: Metadata = {
   title: "Dkode",
@@ -12,8 +13,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" className={`${rosario.variable}`}>
+      <body className="h-screen w-screen">{children}</body>
     </html>
   );
 }
