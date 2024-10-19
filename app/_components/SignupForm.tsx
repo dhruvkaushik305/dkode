@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function SignupForm() {
@@ -17,6 +18,10 @@ export default function SignupForm() {
       className="p-5 rounded-xl border border-zinc-300 flex flex-col justify-center gap-10"
       action={submitAction}
     >
+      <header className="flex flex-col gap-5 items-center">
+        <Image src="/logo.png" alt="logo" width={170} height={170} />
+        <p className="text-4xl font-semibold">Sign Up</p>
+      </header>
       <label className="flex flex-col gap-2">
         <header className="font-medium text-xl">Name</header>
         <input

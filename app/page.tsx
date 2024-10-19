@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -9,6 +10,8 @@ export default function Home() {
           Your <span className="text-dk-blue">classroom</span>, Your{" "}
           <span className="text-dk-blue">coding lab.</span>
         </p>
+        <Link href={"/login"}>Login</Link>
+        <Link href={"/signup"}>Signup</Link>
       </section>
       <footer className="text-right text-md lg:text-lg w-full">
         Coming soon...
