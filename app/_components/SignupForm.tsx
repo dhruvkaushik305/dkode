@@ -70,10 +70,7 @@ export default function SignupForm() {
           </label>
         </div>
       </label>
-      <button
-        className="p-3 rounded-lg text-lg bg-black text-white bg-gradient-to-br from-dk-blue to-blue-900"
-        type="submit"
-      >
+      <button className="gradient-btn" type="submit">
         Signup
       </button>
       <p>

@@ -4,3 +4,6 @@
 .input-box {
     @apply rounded-md p-3 w-full border border-zinc-200 focus:border-zinc-400 focus:outline-none;
 }
+.gradient-btn {
+    @apply p-3 rounded-lg text-lg bg-black text-white bg-gradient-to-br from-dk-blue to-blue-900;
+}
