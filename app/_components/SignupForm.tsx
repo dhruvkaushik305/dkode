@@ -15,7 +15,7 @@ export default function SignupForm() {
 
   return (
     <form
-      className="p-5 rounded-xl border border-zinc-300 flex flex-col justify-center gap-10"
+      className="p-5 flex flex-col justify-center gap-10"
       action={submitAction}
     >
       <header className="flex flex-col gap-5 items-center">

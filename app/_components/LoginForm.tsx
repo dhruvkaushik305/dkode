@@ -12,7 +12,7 @@ export default function LoginForm() {
   }
   return (
     <form
-      className="p-8 border border-zinc-300 rounded-xl flex flex-col justify-center gap-7"
+      className="p-8 flex flex-col justify-center gap-7"
       action={submitAction}
     >
       <header className="flex flex-col gap-5 items-center">
