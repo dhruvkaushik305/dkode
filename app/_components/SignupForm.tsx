@@ -1,18 +1,22 @@
+"use client";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { createUserAction } from "../actions";
 
 export default function SignupForm() {
+  //state variable to show the error message
+  const [errorMessage, setErrorMessage] = React.useState("");
+  //state variable to show the pending state
+  const [pending, setPending] = React.useState(false);
   async function submitAction(formData: FormData) {
-    "use server";
-    const rawData = {
-      name: formData.get("name"),
-      email: formData.get("email"),
-      password: formData.get("password"),
-      role: formData.get("role"),
-    };
-    console.log(rawData);
+    setPending(true);
+    const response = await createUserAction(formData);
+    if (!response?.success) {
+      setErrorMessage(response.message);
+    }
+    setPending(false);
   }
-
   return (
     <form
       className="p-5 flex flex-col justify-center gap-10"
@@ -59,20 +63,26 @@ export default function SignupForm() {
             <input
               type="radio"
               name="role"
-              value="student"
+              value="STUDENT"
               defaultChecked={true}
             />
             <header>Student</header>
           </label>
           <label className="flex gap-2">
-            <input type="radio" name="role" value="teacher" />
+            <input type="radio" name="role" value="TEACHER" />
             <header>Teacher</header>
           </label>
         </div>
       </label>
-      <button className="gradient-btn" type="submit">
+      <button
+        className={`gradient-btn ${pending ? "opacity-60 cursor-not-allowed" : ""}`}
+        disabled={pending}
+      >
         Signup
       </button>
+      {errorMessage && (
+        <p className="text-red-500 text-center">{errorMessage}</p>
+      )}
       <p>
         Already have an acount?{" "}
         <Link href="/login" className="text-blue-500 hover:underline">
