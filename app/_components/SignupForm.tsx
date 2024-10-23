@@ -1,29 +1,37 @@
 "use client";
+
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { createUserAction } from "../actions";
+import { useRouter } from "next/navigation";
 
 export default function SignupForm() {
+  const router = useRouter();
   //state variable to show the error message
   const [errorMessage, setErrorMessage] = React.useState("");
   //state variable to show the pending state
   const [pending, setPending] = React.useState(false);
+
   async function submitAction(formData: FormData) {
     setPending(true);
     const response = await createUserAction(formData);
     if (!response?.success) {
       setErrorMessage(response.message);
     }
+    router.push("/dashboard");
     setPending(false);
   }
+
   return (
     <form
       className="p-5 flex flex-col justify-center gap-10"
       action={submitAction}
     >
       <header className="flex flex-col gap-5 items-center">
-        <Image src="/logo.png" alt="logo" width={170} height={170} />
+        <Link href="/">
+          <Image src="/logo.png" alt="logo" width={170} height={170} />
+        </Link>
         <p className="text-4xl font-semibold">Sign Up</p>
       </header>
       <label className="flex flex-col gap-2">

@@ -1,6 +1,8 @@
 "use server";
-import db from "@/app/db";
+import { signIn } from "@/auth";
+import db from "@/db";
 import bcrypt from "bcryptjs";
+
 export async function createUserAction(formData: FormData) {
   try {
     //check if the user already exists
@@ -30,7 +32,13 @@ export async function createUserAction(formData: FormData) {
       },
     });
     if (queryCreateUser) {
-      //sign the user in
+      //send the user to signin via nextauth
+      await signIn("credentials", {
+        email: formData.get("email") as string,
+        password: formData.get("password") as string,
+        newUser: true,
+        redirect: false,
+      });
       return { success: true, message: "User created successfully" };
     } else {
       console.error("Failed to create a user");
@@ -42,5 +50,26 @@ export async function createUserAction(formData: FormData) {
       err,
     );
     return { success: false, message: "Something went wrong" };
+  }
+}
+
+//attempts to login using the signIn function from next-auth
+export async function loginAction(formData: FormData) {
+  try {
+    const result = await signIn("credentials", {
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+      newUser: false,
+      redirect: false,
+    });
+    console.log("result is ", result);
+    return { success: true };
+  } catch (err) {
+    if (err.type === "CredentialsSignin") {
+      return { success: false, message: err.message };
+    } else {
+      console.error("the following error occurred while logging in", err);
+      return { success: false, message: "Something went wrong" };
+    }
   }
 }

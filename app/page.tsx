@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -26,14 +27,7 @@ export default function Home() {
           administering, and grading coding assessments, saving teachers time
           and effort.
         </p>
-        <p>
-          <Link
-            href="/signup"
-            className="bg-gradient-to-l from-blue-800 to-blue-500 text-white py-3 px-6 rounded-lg text-xl"
-          >
-            Get Started
-          </Link>
-        </p>
+        <GettingStartedButton />
       </section>
       <footer className="text-right text-md lg:text-lg w-full">
         Coming soon...
@@ -42,25 +36,65 @@ export default function Home() {
   );
 }
 
-function Navbar() {
+async function Navbar() {
+  //fetch the user session
+  const session = await auth();
+
   const navButtons = [
     { name: "Login", href: "/login" },
     { name: "Register", href: "/signup" },
   ];
   return (
     <nav className="flex justify-around items-center w-full bg-white/70 p-2">
-      <Image src="/logo.png" alt="logo" width={170} height={100} />
+      <Link href="/">
+        <Image src="/logo.png" alt="logo" width={170} height={100} />
+      </Link>
       <section className="flex justify-center items-center gap-5">
-        {navButtons.map((button, index) => (
+        {!session ? ( //show the login, register buttons if the user is not logged in
+          navButtons.map((button, index) => (
+            <Link
+              key={index}
+              href={button.href}
+              className="border-b border-white transition-colors hover:border-zinc-500 duration-300"
+            >
+              {button.name}
+            </Link>
+          ))
+        ) : (
+          //show the dashboard button if the user is logged in
           <Link
-            key={index}
-            href={button.href}
+            href="/dashboard"
             className="border-b border-white transition-colors hover:border-zinc-500 duration-300"
           >
-            {button.name}
+            Dashboard
           </Link>
-        ))}
+        )}
       </section>
     </nav>
+  );
+}
+
+async function GettingStartedButton() {
+  //fetch the user session
+  const session = await auth();
+  return (
+    <>
+      {!session ? ( //show the get started button if the user is not logged in
+        <Link
+          href="/signup"
+          className="bg-gradient-to-l from-blue-800 to-blue-500 text-white py-3 px-6 rounded-lg text-xl"
+        >
+          Get Started
+        </Link>
+      ) : (
+        //show the dashboard button if the user is logged in
+        <Link
+          href="/dashboard"
+          className="bg-gradient-to-l from-blue-800 to-blue-500 text-white py-3 px-6 rounded-lg text-xl"
+        >
+          Dashboard
+        </Link>
+      )}
+    </>
   );
 }
