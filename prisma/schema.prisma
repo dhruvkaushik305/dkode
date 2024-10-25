@@ -7,13 +7,55 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model user {
+model User {
+  id                String      @id @default(uuid())
+  name              String
+  email             String      @unique
+  password          String
+  createdAt         DateTime    @default(now())
+  role              Role        @default(STUDENT)
+  studentClassrooms Classroom[] @relation("ClassroomStudents")
+  teacherClassrooms Classroom[] @relation("ClassroomTeachers")
+  createdClassrooms Classroom[] @relation("ClassroomCreator")
+}
+
+model Classroom {
   id        String   @id @default(uuid())
   name      String
-  email     String   @unique
-  password  String
   createdAt DateTime @default(now())
-  role      Role     @default(STUDENT)
+  students  User[]   @relation("ClassroomStudents")
+  teachers  User[]   @relation("ClassroomTeachers")
+  creatorId String
+  creator   User     @relation("ClassroomCreator", fields: [creatorId], references: [id])
+  tests     Test[]
+}
+
+model Test {
+  id            String     @id @default(uuid())
+  name          String
+  startDateTime DateTime
+  endDateTime   DateTime
+  startedAt     DateTime?
+  questions     Question[]
+  classroomId   String
+  classroom     Classroom  @relation(fields: [classroomId], references: [id])
+}
+
+model Question {
+  id        String     @id @default(uuid())
+  statement String
+  testCases TestCase[]
+  testId    String
+  test      Test       @relation(fields: [testId], references: [id])
+}
+
+model TestCase {
+  id         String   @id @default(uuid())
+  input      String
+  output     String
+  visibility Boolean  @default(true) //to mark testcases as hidden
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
 }
 
 enum Role {
