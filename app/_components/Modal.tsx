@@ -2,8 +2,17 @@
 import React from "react";
 import { X } from "lucide-react";
 
-export default function Modal({ children }: { children: React.ReactNode }) {
+interface ModalProps {
+  whenOpen: React.ReactNode;
+  whenClose: React.ReactNode;
+}
+
+export default function Modal({ whenOpen, whenClose }: ModalProps) {
   const [isOpen, setIsOpened] = React.useState(false);
+
+  const openModalHandler = () => {
+    setIsOpened(true);
+  };
 
   const closeModalHandler = () => {
     setIsOpened(false);
@@ -14,19 +23,30 @@ export default function Modal({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
-      onClick={closeModalHandler}
-    >
-      <div
-        className="relative p-2 bg-white rounded-xl flex flex-col shadow-lg max-w-lg w-full"
-        onClick={preventPropogationHandler}
-      >
-        <button onClick={closeModalHandler} className="flex justify-end w-full">
-          <X />
-        </button>
-        {isOpen && children}
-      </div>
-    </div>
+    <>
+      {!isOpen ? (
+        <span onClick={openModalHandler} className="cursor-pointer">
+          {whenClose}
+        </span>
+      ) : (
+        <div
+          className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+          onClick={closeModalHandler}
+        >
+          <div
+            className="relative p-2 bg-white rounded-xl flex flex-col shadow-lg max-w-lg w-full"
+            onClick={preventPropogationHandler}
+          >
+            <button
+              onClick={closeModalHandler}
+              className="flex justify-end w-full"
+            >
+              <X />
+            </button>
+            {whenOpen}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

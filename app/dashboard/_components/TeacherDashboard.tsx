@@ -1,6 +1,11 @@
 import { auth } from "@/auth";
 import db from "@/db";
 import { ClassroomType } from "@/app/types";
+import Modal from "@/app/_components/Modal";
+import {
+  ClosedModalComponent,
+  OpenedModalComponent,
+} from "./TeacherClientModals";
 
 export default function TeacherDashboard() {
   return (
@@ -17,13 +22,14 @@ export default function TeacherDashboard() {
 
 async function Classrooms() {
   const session = await auth();
+
   if (!session) {
     console.error("Critical: Classroom section does not have session");
     return null;
   }
 
   let classrooms: ClassroomType[] = [];
-  //fetch the classrooms that the teacher is a part of
+
   const query = await db.classroom.findMany({
     where: {
       teachers: {
@@ -33,6 +39,7 @@ async function Classrooms() {
       },
     },
   });
+
   if (query) {
     classrooms = query;
   }
@@ -40,9 +47,10 @@ async function Classrooms() {
   return (
     <section className="flex-1 flex items-center justify-center">
       {classrooms.length === 0 ? (
-        <p className="text-center">
-          No classrooms found. <br /> Create one
-        </p>
+        <Modal
+          whenOpen={<OpenedModalComponent />}
+          whenClose={<ClosedModalComponent />}
+        />
       ) : (
         classrooms.map((classroom, index) => (
           <div key={index}>{JSON.stringify(classroom)}</div>

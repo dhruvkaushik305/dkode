@@ -1,5 +1,5 @@
 "use server";
-import { signIn } from "@/auth";
+import { auth, signIn } from "@/auth";
 import db from "@/db";
 import bcrypt from "bcryptjs";
 
@@ -71,5 +71,37 @@ export async function loginAction(formData: FormData) {
       console.error("the following error occurred while logging in", err);
       return { success: false, message: "Something went wrong" };
     }
+  }
+}
+
+export async function createClassroomAction(name: string) {
+  const session = await auth();
+
+  if (!session) return { success: false, message: "Unauthorised" };
+
+  try {
+    const query = await db.classroom.create({
+      data: {
+        name,
+        creatorId: session.user.id,
+        teachers: {
+          connect: {
+            id: session.user.id,
+          },
+        },
+      },
+    });
+
+    return {
+      success: true,
+      message: "Classroom invite copied to clipboard",
+      id: query.id,
+    };
+  } catch (err) {
+    console.error(
+      "The following error occured while creating a new classroom",
+      err,
+    );
+    return { success: false, message: "Something went wrong" };
   }
 }
