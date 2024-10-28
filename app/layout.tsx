@@ -8,7 +8,6 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  auth,
   children,
 }: Readonly<{
   auth: React.ReactNode;
@@ -17,7 +16,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${rosario.variable}`}>
       <body className="w-screen h-screen">
-        <section className="absolute">{auth}</section>
         <section className="h-full">{children}</section>
       </body>
     </html>

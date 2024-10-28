@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import db from "@/db";
-import { ClassroomType } from "../types";
+import { ClassroomType } from "@/app/types";
+
 export default function TeacherDashboard() {
   return (
     <main className="h-full">
@@ -32,7 +33,6 @@ async function Classrooms() {
       },
     },
   });
-  //if foumd, set the default list to this
   if (query) {
     classrooms = query;
   }
