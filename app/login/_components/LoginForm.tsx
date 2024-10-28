@@ -3,8 +3,8 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { loginAction } from "../actions";
 import { useRouter } from "next/navigation";
+import { loginAction } from "@/app/actions";
 
 export default function LoginForm() {
   const router = useRouter();
