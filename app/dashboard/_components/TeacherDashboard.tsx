@@ -6,6 +6,7 @@ import {
   ClosedModalComponent,
   OpenedModalComponent,
 } from "./TeacherClientModals";
+import Link from "next/link";
 
 export default function TeacherDashboard() {
   return (
@@ -53,9 +54,15 @@ async function Classrooms() {
         />
       ) : (
         classrooms.map((classroom, index) => (
-          <div key={index}>{JSON.stringify(classroom)}</div>
+          <ClassroomCard key={index} classroom={classroom} />
         ))
       )}
     </section>
+  );
+}
+
+function ClassroomCard({ classroom }: { classroom: ClassroomType }) {
+  return (
+    <Link href={`/dashboard/classroom/${classroom.id}`}>{classroom.name}</Link>
   );
 }
