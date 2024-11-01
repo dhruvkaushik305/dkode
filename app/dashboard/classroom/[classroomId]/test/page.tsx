@@ -10,7 +10,11 @@ export default function Page() {
 
   return (
     <main>
-      {testId === "new" ? <NewTest /> : <div>Some existing test</div>}
+      {testId === "new" ? (
+        <NewTest id={testId} />
+      ) : (
+        <div>Some existing test</div>
+      )}
     </main>
   );
 }
