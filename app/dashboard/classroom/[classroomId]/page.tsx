@@ -28,6 +28,13 @@ async function Tests({ classroomId }: { classroomId: string }) {
     where: {
       classroomId,
     },
+    include: {
+      questions: {
+        include: {
+          testCases: true,
+        },
+      },
+    },
   });
 
   if (query) {

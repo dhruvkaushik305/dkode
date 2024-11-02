@@ -18,7 +18,7 @@ export type TestType = {
 export type QuestionType = {
   id?: string;
   statement: string;
-  testId: string;
+  testId?: string;
   testCases: TestCaseType[];
 };
 
@@ -27,5 +27,5 @@ export type TestCaseType = {
   input: string;
   output: string;
   visibility: boolean;
-  questionId: string;
+  questionId?: string;
 };

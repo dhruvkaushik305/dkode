@@ -9,7 +9,7 @@ export default function Page() {
   const testId = searchParams.get("id");
 
   return (
-    <main>
+    <main className="h-full">
       {testId === "new" ? (
         <NewTest id={testId} />
       ) : (
