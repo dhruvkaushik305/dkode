@@ -17,7 +17,7 @@ export default function LoginForm() {
     setPending(true);
     const response = await loginAction(formData);
     if (!response?.success) {
-      setErrorMessage(response?.message);
+      setErrorMessage(response.message);
     }
     router.push("/dashboard");
     setPending(false);

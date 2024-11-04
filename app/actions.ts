@@ -71,14 +71,14 @@ interface ErrType {
 //attempts to login using the signIn function from next-auth
 export async function loginAction(formData: FormData) {
   try {
-    const result = await signIn("credentials", {
+    await signIn("credentials", {
       email: formData.get("email") as string,
       password: formData.get("password") as string,
       newUser: false,
       redirect: false,
     });
-    console.log("result is ", result);
-    return { success: true };
+
+    return { success: true, message: "Login completed" };
   } catch (err) {
     const error = err as ErrType;
 
