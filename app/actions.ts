@@ -53,6 +53,21 @@ export async function createUserAction(formData: FormData) {
   }
 }
 
+interface ErrType {
+  NotAuthorized: string;
+  type: string;
+  kind: string;
+  code: string;
+  message: string;
+}
+
+//when siginIssue is raised, the general object is like
+// NotAuthorized: message with a callback trace
+// type: 'CredentialsSignin'
+// kind: 'signIn'
+// code: 'credentials'
+// message: CredentialsSignin: The email or password entered is incorrect
+
 //attempts to login using the signIn function from next-auth
 export async function loginAction(formData: FormData) {
   try {
@@ -65,10 +80,12 @@ export async function loginAction(formData: FormData) {
     console.log("result is ", result);
     return { success: true };
   } catch (err) {
-    if (err.type === "CredentialsSignin") {
-      return { success: false, message: err.message };
+    const error = err as ErrType;
+
+    if (error.type === "CredentialsSignin") {
+      return { success: false, message: error.message };
     } else {
-      console.error("the following error occurred while logging in", err);
+      console.error("the following error occurred while logging in", error);
       return { success: false, message: "Something went wrong" };
     }
   }
