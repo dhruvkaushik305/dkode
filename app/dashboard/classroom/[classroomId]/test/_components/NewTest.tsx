@@ -36,8 +36,11 @@ export default function NewTest({ id }: Props) {
 }
 
 function Sidebar() {
-  const { context, setContext, selectedNav, setSelectedNav } =
-    useContext(Context);
+  const contextObj = useContext(Context);
+
+  if (!contextObj) throw new Error("Sidebar does not have a context");
+
+  const { context, setContext, selectedNav, setSelectedNav } = contextObj;
 
   //memoising this computation
   const navItems = React.useMemo(() => {
@@ -111,7 +114,11 @@ function Sidebar() {
 }
 
 function DisplayPanel() {
-  const { selectedNav } = useContext(Context);
+  const contextObj = useContext(Context);
+
+  if (!contextObj) throw new Error("Display panel does not have a context");
+
+  const { selectedNav } = contextObj;
 
   let questionNumber: number | null = null;
 
