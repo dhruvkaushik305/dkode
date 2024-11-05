@@ -3,6 +3,7 @@
 import React from "react";
 import { QuestionType, TestCaseType, TestType } from "@/app/types";
 import PageWithNavbar from "@/app/dashboard/_components/PageWithNavbar";
+import { Plus, PlusCircle } from "lucide-react";
 
 export default function UpsertTestPage({
   testId,
@@ -77,44 +78,58 @@ export default function UpsertTestPage({
 
   return (
     <PageWithNavbar>
-      <section className="p-7">
-        <section>
-          <header>General</header>
-          <form className="flex flex-col gap-5">
+      <section className="p-5 h-full flex flex-col gap-5 items-center">
+        <section className="flex flex-col gap-5 w-full">
+          <header className="font-medium border-b border-gray-300 text-3xl p-2">
+            General Options
+          </header>
+          <form className="flex flex-col gap-7">
             <label className="flex flex-col gap-2">
-              <header>Name:</header>
+              <header className="font-medium text-xl">Name:</header>
               <input
                 type="text"
                 value={testState.name}
                 onChange={(e) => generalChangeHandler("name", e.target.value)}
+                className="input-box"
               />
             </label>
-            <label className="flex flex-col gap-2">
-              <header>Start Date and Time:</header>
-              <input
-                type="datetime-local"
-                value={testState.startDateTime.toISOString().slice(0, 16)}
-                onChange={(e) =>
-                  generalChangeHandler(
-                    "startDateTime",
-                    new Date(e.target.value)
-                  )
-                }
-              />
-            </label>
-            <label className="flex flex-col gap-2">
-              <header>End Date and Time:</header>
-              <input
-                type="datetime-local"
-                value={testState.endDateTime.toISOString().slice(0, 16)}
-                onChange={(e) =>
-                  generalChangeHandler("endDateTime", new Date(e.target.value))
-                }
-              />
-            </label>
+            <div className="flex items-center gap-3">
+              <label className="flex flex-col gap-2 w-full">
+                <header className="font-medium text-xl">
+                  Start Date and Time:
+                </header>
+                <input
+                  type="datetime-local"
+                  value={testState.startDateTime.toISOString().slice(0, 16)}
+                  className="input-box"
+                  onChange={(e) =>
+                    generalChangeHandler(
+                      "startDateTime",
+                      new Date(e.target.value)
+                    )
+                  }
+                />
+              </label>
+              <label className="flex flex-col gap-2 w-full">
+                <header className="font-medium text-xl">
+                  End Date and Time:
+                </header>
+                <input
+                  type="datetime-local"
+                  className="input-box"
+                  value={testState.endDateTime.toISOString().slice(0, 16)}
+                  onChange={(e) =>
+                    generalChangeHandler(
+                      "endDateTime",
+                      new Date(e.target.value)
+                    )
+                  }
+                />
+              </label>
+            </div>
           </form>
         </section>
-        <section>
+        <section className="w-full flex flex-col gap-3">
           {testState.questions.map((question, index) => (
             <RenderQuestion
               key={index}
@@ -123,9 +138,19 @@ export default function UpsertTestPage({
               setTestState={setTestState}
             />
           ))}
-          <button onClick={addQuestionHandler}>Add Question</button>
+          <button
+            onClick={addQuestionHandler}
+            className="border-2 border-dotted p-2 px-4 rounded-md border-blue-400 text-gray-600 flex gap-2 items-center w-fit"
+          >
+            Question <PlusCircle size={18} color="blue" />
+          </button>
         </section>
-        <button onClick={formSubmitionHandler}>Submit</button>
+        <button
+          onClick={formSubmitionHandler}
+          className="bg-black text-white p-2 rounded-xl w-1/2"
+        >
+          Submit
+        </button>
       </section>
     </PageWithNavbar>
   );
@@ -168,18 +193,21 @@ function RenderQuestion({
   };
 
   return (
-    <div>
-      <header>Question {index + 1}</header>
+    <div className="flex flex-col gap-5">
+      <header className="ont-medium border-b border-gray-300 text-2xl p-2">
+        Question {index + 1}
+      </header>
       <form className="flex flex-col gap-8">
         <label className="flex flex-col gap-2">
-          <header>Statement:</header>
+          <header className="font-medium text-xl">Statement:</header>
           <textarea
             onChange={(e) => questionChangeHandler(index, e.target.value)}
             value={question.statement}
+            className="input-box"
           />
         </label>
-        <section>
-          <header>Testcases:</header>
+        <section className="flex flex-col gap-3">
+          <header className="font-medium text-xl">Testcases:</header>
           {question.testCases.map((testCase, index) => (
             <RenderTestCase
               key={index}
@@ -189,7 +217,12 @@ function RenderQuestion({
               setTestState={setTestState}
             />
           ))}
-          <button onClick={addTestCaseHandler}>Add TestCase</button>
+          <button
+            onClick={addTestCaseHandler}
+            className="border-2 border-dotted p-2 px-4 rounded-md border-green-400 text-gray-600 flex gap-2 items-center w-fit"
+          >
+            TestCase <Plus size={18} color="green" />{" "}
+          </button>
         </section>
       </form>
     </div>
@@ -254,21 +287,23 @@ function RenderTestCase({
   };
 
   return (
-    <div>
+    <div className="flex flex-col gap-3">
       <label className="flex flex-col gap-2">
-        <header>Input:</header>
+        <header className="font-medium text-xl">Input:</header>
         <input
           type="text"
           value={testCase.input}
           onChange={(e) => testCaseChangeHandler("input", e.target.value)}
+          className="input-box"
         />
       </label>
       <label className="flex flex-col gap-2">
-        <header>Output:</header>
+        <header className="font-medium text-xl">Output:</header>
         <input
           type="text"
           value={testCase.output}
           onChange={(e) => testCaseChangeHandler("output", e.target.value)}
+          className="input-box"
         />
       </label>
     </div>
