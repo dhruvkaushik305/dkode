@@ -1,3 +1,6 @@
+"use client";
+
+import React from "react";
 import { House } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,7 +19,7 @@ export default function PageWithNavbar({
     </main>
   );
 }
-function Navbar() {
+const Navbar = React.memo(function () {
   return (
     <nav className="flex flex-col p-5 items-center gap-5 w-[23rem]">
       <Link href="/">
@@ -30,4 +33,4 @@ function Navbar() {
       </Link>
     </nav>
   );
-}
+});

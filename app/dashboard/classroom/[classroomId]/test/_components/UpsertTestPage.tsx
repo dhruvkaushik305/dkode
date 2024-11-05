@@ -1,27 +1,40 @@
 "use client";
 
 import React from "react";
-import Context from "./providers";
-import { QuestionType, TestCaseType } from "@/app/types";
+import { QuestionType, TestCaseType, TestType } from "@/app/types";
 import PageWithNavbar from "@/app/dashboard/_components/PageWithNavbar";
 
-export default function UpsertTestPage() {
-  const contextObj = React.useContext(Context);
+export default function UpsertTestPage({
+  testId,
+  existingTest,
+}: {
+  readonly testId: string;
+  readonly existingTest?: TestType;
+}) {
+  let initialTestObject: TestType = {
+    name: "Untitled",
+    startDateTime: new Date(Date.now()),
+    endDateTime: new Date(Date.now() + 60 * 60 * 1000),
+    startedAt: null,
+    classroomId: testId,
+    questions: [],
+  };
 
-  if (!contextObj)
-    throw new Error("Upsert Test Page was not given any Context");
+  if (existingTest) {
+    initialTestObject = existingTest;
+  }
 
-  const { context, setContext } = contextObj;
+  const [testState, setTestState] = React.useState(initialTestObject);
 
   const generalChangeHandler = (field: string, value: any) => {
-    setContext((prevContext) => ({ ...prevContext, [field]: value }));
+    setTestState((prevState) => ({ ...prevState, [field]: value }));
   };
 
   const addQuestionHandler = () => {
-    setContext((prevContext) => ({
-      ...prevContext,
+    setTestState((prevState) => ({
+      ...prevState,
       questions: [
-        ...prevContext.questions,
+        ...prevState.questions,
         {
           statement: "Untitled",
           testCases: [],
@@ -32,20 +45,20 @@ export default function UpsertTestPage() {
 
   const formSubmitionHandler = () => {
     //check that the general is not empty
-    console.log("context is ", context);
+    console.log("context is ", testState);
     if (
-      context.name === "" ||
-      context.startDateTime === null ||
-      context.endDateTime === null
+      testState.name === "" ||
+      testState.startDateTime === null ||
+      testState.endDateTime === null
     ) {
       alert("form details are incomplete");
     }
 
     //check that questions exist
-    if (context.questions.length === 0) alert("no questions given");
+    if (testState.questions.length === 0) alert("no questions given");
 
     //check that no question has any unfilled entry
-    context.questions.every((question, questionIndex) => {
+    testState.questions.every((question, questionIndex) => {
       if (question.statement === "")
         alert(`incomplete question ${questionIndex + 1}`);
       if (question.testCases.length === 0)
@@ -72,7 +85,7 @@ export default function UpsertTestPage() {
               <header>Name:</header>
               <input
                 type="text"
-                value={context.name}
+                value={testState.name}
                 onChange={(e) => generalChangeHandler("name", e.target.value)}
               />
             </label>
@@ -80,7 +93,7 @@ export default function UpsertTestPage() {
               <header>Start Date and Time:</header>
               <input
                 type="datetime-local"
-                value={context.startDateTime.toISOString().slice(0, 16)}
+                value={testState.startDateTime.toISOString().slice(0, 16)}
                 onChange={(e) =>
                   generalChangeHandler(
                     "startDateTime",
@@ -93,7 +106,7 @@ export default function UpsertTestPage() {
               <header>End Date and Time:</header>
               <input
                 type="datetime-local"
-                value={context.endDateTime.toISOString().slice(0, 16)}
+                value={testState.endDateTime.toISOString().slice(0, 16)}
                 onChange={(e) =>
                   generalChangeHandler("endDateTime", new Date(e.target.value))
                 }
@@ -102,8 +115,13 @@ export default function UpsertTestPage() {
           </form>
         </section>
         <section>
-          {context.questions.map((question, index) => (
-            <RenderQuestion key={index} question={question} index={index} />
+          {testState.questions.map((question, index) => (
+            <RenderQuestion
+              key={index}
+              question={question}
+              index={index}
+              setTestState={setTestState}
+            />
           ))}
           <button onClick={addQuestionHandler}>Add Question</button>
         </section>
@@ -116,21 +134,16 @@ export default function UpsertTestPage() {
 function RenderQuestion({
   question,
   index,
+  setTestState,
 }: {
-  question: QuestionType;
-  index: number;
+  readonly question: QuestionType;
+  readonly index: number;
+  readonly setTestState: React.Dispatch<React.SetStateAction<TestType>>;
 }) {
-  const contextObj = React.useContext(Context);
-
-  if (!contextObj)
-    throw new Error("Testpage must be used inside a context provider");
-
-  const { setContext } = contextObj;
-
   const questionChangeHandler = (index: number, value: string) => {
-    setContext((prevContext) => ({
-      ...prevContext,
-      questions: prevContext.questions.map((question, questionIndex) =>
+    setTestState((prevState) => ({
+      ...prevState,
+      questions: prevState.questions.map((question, questionIndex) =>
         questionIndex === index ? { ...question, statement: value } : question
       ),
     }));
@@ -141,9 +154,9 @@ function RenderQuestion({
 
     const newTestCase = { input: "", output: "", visibility: true };
 
-    setContext((prevContext) => ({
-      ...prevContext,
-      questions: prevContext.questions.map((question, questionIndex) =>
+    setTestState((prevState) => ({
+      ...prevState,
+      questions: prevState.questions.map((question, questionIndex) =>
         questionIndex === index
           ? {
               ...question,
@@ -173,6 +186,7 @@ function RenderQuestion({
               testCase={testCase}
               questionIndex={index}
               testCaseIndex={index}
+              setTestState={setTestState}
             />
           ))}
           <button onClick={addTestCaseHandler}>Add TestCase</button>
@@ -186,32 +200,55 @@ function RenderTestCase({
   testCase,
   questionIndex,
   testCaseIndex,
+  setTestState,
 }: {
-  testCase: TestCaseType;
-  questionIndex: number;
-  testCaseIndex: number;
+  readonly testCase: TestCaseType;
+  readonly questionIndex: number;
+  readonly testCaseIndex: number;
+  readonly setTestState: React.Dispatch<React.SetStateAction<TestType>>;
 }) {
-  const contextObj = React.useContext(Context);
+  const updateTestCase = (
+    testCase: TestCaseType,
+    field: string,
+    value: string,
+    testCaseIndex: number,
+    tcIndex: number
+  ) => {
+    return tcIndex === testCaseIndex
+      ? { ...testCase, [field]: value }
+      : testCase;
+  };
 
-  if (!contextObj)
-    throw new Error("Test page must be inside a context provider");
-
-  const { setContext } = contextObj;
+  const updateQuestion = (
+    question: QuestionType,
+    field: string,
+    value: string,
+    questionIndex: number,
+    testCaseIndex: number,
+    qIndex: number
+  ) => {
+    return qIndex === questionIndex
+      ? {
+          ...question,
+          testCases: question.testCases.map((testCase, tcIndex) =>
+            updateTestCase(testCase, field, value, testCaseIndex, tcIndex)
+          ),
+        }
+      : question;
+  };
 
   const testCaseChangeHandler = (field: string, value: string) => {
-    setContext((prevContext) => ({
-      ...prevContext,
-      questions: prevContext.questions.map((question, qIndex) =>
-        qIndex === questionIndex
-          ? {
-              ...question,
-              testCases: question.testCases.map((testCase, tcIndex) =>
-                tcIndex === testCaseIndex
-                  ? { ...testCase, [field]: value }
-                  : testCase
-              ),
-            }
-          : question
+    setTestState((prevState) => ({
+      ...prevState,
+      questions: prevState.questions.map((question, qIndex) =>
+        updateQuestion(
+          question,
+          field,
+          value,
+          questionIndex,
+          testCaseIndex,
+          qIndex
+        )
       ),
     }));
   };
