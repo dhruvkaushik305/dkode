@@ -1,6 +1,7 @@
 import { TestType } from "@/app/types";
 import PageWithNavbar from "../../_components/PageWithNavbar";
 import db from "@/db";
+import TestButton from "./_components/Buttons";
 
 export default async function Page({
   params,
@@ -44,9 +45,15 @@ async function Tests({ classroomId }: { classroomId: string }) {
   return (
     <section className="flex-1 flex items-center justify-center">
       {tests.length === 0 ? (
-        <p>No tests</p>
+        <TestButton>
+          <span className="text-blue-500 hover:underline">Create Test</span>
+        </TestButton>
       ) : (
-        tests.map((test, index) => <TestCard key={index} test={test} />)
+        tests.map((test) => (
+          <TestButton key={test.id} testId={test.id}>
+            <TestCard test={test} />
+          </TestButton>
+        ))
       )}
     </section>
   );
