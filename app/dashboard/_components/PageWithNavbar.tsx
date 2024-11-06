@@ -13,7 +13,7 @@ export default function PageWithNavbar({
   return (
     <main className="flex h-full w-full">
       <Navbar />
-      <section className="rounded-tl-[4rem] h-full w-full bg-zinc-100">
+      <section className="rounded-tl-[4rem] h-full w-full bg-zinc-100 overflow-x-hidden pb-10">
         {children}
       </section>
     </main>
