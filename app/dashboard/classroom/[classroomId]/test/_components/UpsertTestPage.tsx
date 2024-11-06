@@ -3,7 +3,8 @@
 import React from "react";
 import { QuestionType, TestCaseType, TestType } from "@/app/types";
 import PageWithNavbar from "@/app/dashboard/_components/PageWithNavbar";
-import { Plus, PlusCircle } from "lucide-react";
+import { Plus, PlusCircle, Trash } from "lucide-react";
+import { toast } from "sonner";
 
 export default function UpsertTestPage({
   testId,
@@ -46,34 +47,52 @@ export default function UpsertTestPage({
 
   const formSubmitionHandler = () => {
     //check that the general is not empty
-    console.log("context is ", testState);
     if (
       testState.name === "" ||
       testState.startDateTime === null ||
       testState.endDateTime === null
     ) {
-      alert("form details are incomplete");
+      toast.error("General Options in the form are incomplete");
+      return;
     }
 
     //check that questions exist
-    if (testState.questions.length === 0) alert("no questions given");
+    if (testState.questions.length === 0) {
+      toast.error("No questions provided");
+      return;
+    }
 
-    //check that no question has any unfilled entry
-    testState.questions.every((question, questionIndex) => {
-      if (question.statement === "")
-        alert(`incomplete question ${questionIndex + 1}`);
-      if (question.testCases.length === 0)
-        alert(`no test cases in question ${questionIndex + 1}`);
-      question.testCases.every((testCase, testCaseIndex) => {
-        if (testCase.input === "" || testCase.output === "") {
-          alert(
-            `test case ${testCaseIndex + 1} of ${
-              questionIndex + 1
-            } is incomplete`
-          );
+    // check that no question has any unfilled entry
+    const questionsValid = testState.questions.every(
+      (question, questionIndex) => {
+        if (question.statement === "") {
+          toast.error(`No statement in question ${questionIndex + 1}`);
+          return false;
         }
-      });
-    });
+        if (question.testCases.length === 0) {
+          toast.error(`No test cases in question ${questionIndex + 1}`);
+          return false;
+        }
+        const testCasesValid = question.testCases.every(
+          (testCase, testCaseIndex) => {
+            if (testCase.input === "" || testCase.output === "") {
+              toast.error(
+                `Case ${testCaseIndex + 1} of question ${
+                  questionIndex + 1
+                } is incomplete`
+              );
+              return false;
+            }
+            return true;
+          }
+        );
+
+        if (testCasesValid) return true;
+        else return false;
+      }
+    );
+
+    if (questionsValid) console.log("the formData is", testState);
   };
 
   return (
@@ -192,10 +211,20 @@ function RenderQuestion({
     }));
   };
 
+  const questionDeletionHandler = () => {
+    setTestState((prevState) => ({
+      ...prevState,
+      questions: prevState.questions.filter(
+        (_, questionIndex) => questionIndex != index
+      ),
+    }));
+  };
+
   return (
     <div className="flex flex-col gap-5">
-      <header className="ont-medium border-b border-gray-300 text-2xl p-2">
+      <header className="font-medium border-b border-gray-300 text-2xl p-2 flex justify-between items-center">
         Question {index + 1}
+        <Trash onClick={questionDeletionHandler} className="cursor-pointer" />
       </header>
       <form className="flex flex-col gap-8">
         <label className="flex flex-col gap-2">
@@ -208,12 +237,12 @@ function RenderQuestion({
         </label>
         <section className="flex flex-col gap-3">
           <header className="font-medium text-xl">Testcases:</header>
-          {question.testCases.map((testCase, index) => (
+          {question.testCases.map((testCase, tcIndex) => (
             <RenderTestCase
-              key={index}
+              key={tcIndex}
               testCase={testCase}
               questionIndex={index}
-              testCaseIndex={index}
+              testCaseIndex={tcIndex}
               setTestState={setTestState}
             />
           ))}
@@ -286,10 +315,30 @@ function RenderTestCase({
     }));
   };
 
+  const testCaseDeletionHandler = () => {
+    setTestState((prevState) => ({
+      ...prevState,
+      questions: prevState.questions.map((q, qIndex) =>
+        qIndex === questionIndex
+          ? {
+              ...q,
+              testCases: q.testCases.filter(
+                (_, tcIndex) => tcIndex !== testCaseIndex
+              ),
+            }
+          : q
+      ),
+    }));
+  };
+
   return (
     <div className="flex flex-col gap-3">
+      <header className="flex justify-between items-center">
+        Case {testCaseIndex + 1}{" "}
+        <Trash onClick={testCaseDeletionHandler} className="cursor-pointer" />
+      </header>
       <label className="flex flex-col gap-2">
-        <header className="font-medium text-xl">Input:</header>
+        <header className="font-medium text-xl ">Input:</header>
         <input
           type="text"
           value={testCase.input}
