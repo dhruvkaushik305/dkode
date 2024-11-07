@@ -4,14 +4,17 @@ import db from "@/db";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 
+//this error is to be thrown when the payload of the request has incomplete data
 class InsufficientData extends CredentialsSignin {
   message = "Insufficient data";
 }
 
+//this error is to be thrown when the passwords don't match
 class NotAuthorized extends CredentialsSignin {
   message = "The email or password entered is incorrect";
 }
 
+//this error is to be thrown when the user is not found
 class UserNotFound extends CredentialsSignin {
   message = "User does not exist";
 }
@@ -43,13 +46,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       //the main function that checks if the user is valid
       async authorize(credentials) {
-        if (credentials.newUser === undefined)
-          //newUser flag must be present
-          throw new InsufficientData();
+        if (credentials.newUser === undefined) throw new InsufficientData();
 
         //if the user has been newly created, directly return the newUser
+        //newUser field is passed as a string  by the credentials function (dk why)
+        //FIXME the ROLE attribute of the user is not propogated when this function is invoked.
         if (credentials.newUser == "true") {
-          //newUser is interpreted as a string in this function
           return {
             id: credentials.id as string,
             name: credentials.name as string,
@@ -59,30 +61,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           };
         }
 
-        //if the user is not new, check if the credentials are valid
-        if (!credentials || !credentials.email || !credentials.password)
+        if (!credentials?.email || !credentials.password)
           throw new InsufficientData();
 
-        //check if the user exists
         const queryUser = await db.user.findUnique({
           where: { email: credentials.email as string },
         });
 
-        //if the user doesn't exist, throw an error
         if (!queryUser) {
           throw new UserNotFound();
         }
 
-        //if the user exists, check if the password is correct
         const authenticated = await bcrypt.compare(
           credentials.password as string,
-          queryUser.password,
+          queryUser.password
         );
         if (!authenticated) {
           throw new NotAuthorized();
         }
 
-        //if the password is correct
         return queryUser;
       },
     }),
