@@ -5,6 +5,8 @@ import { QuestionType, TestCaseType, TestType } from "@/app/types";
 import PageWithNavbar from "@/app/dashboard/_components/PageWithNavbar";
 import { Plus, PlusCircle, Trash } from "lucide-react";
 import { toast } from "sonner";
+import { createTestAction, editTestAction } from "@/app/actions";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function UpsertTestPage({
   testId,
@@ -13,7 +15,11 @@ export default function UpsertTestPage({
   readonly testId: string;
   readonly existingTest?: TestType;
 }) {
-  let initialTestObject: TestType = {
+  const router = useRouter();
+
+  const pathName = usePathname();
+
+  const initialTestObject = existingTest ?? {
     name: "Untitled",
     startDateTime: new Date(Date.now()),
     endDateTime: new Date(Date.now() + 60 * 60 * 1000),
@@ -21,10 +27,6 @@ export default function UpsertTestPage({
     classroomId: testId,
     questions: [],
   };
-
-  if (existingTest) {
-    initialTestObject = existingTest;
-  }
 
   const [testState, setTestState] = React.useState(initialTestObject);
 
@@ -45,7 +47,7 @@ export default function UpsertTestPage({
     }));
   };
 
-  const formSubmitionHandler = () => {
+  const formSubmitionHandler = async () => {
     //check that the general is not empty
     if (
       testState.name === "" ||
@@ -92,7 +94,37 @@ export default function UpsertTestPage({
       }
     );
 
-    if (questionsValid) console.log("the formData is", testState);
+    if (questionsValid) {
+      if (initialTestObject.id) {
+        //an existing test, update the contents
+        const query = await editTestAction(
+          initialTestObject.classroomId,
+          initialTestObject.id,
+          testState
+        );
+        if (query.success) {
+          //redirect to the test page
+          const newUrl = pathName.split("/").slice(0, 5).join("/");
+          router.push(newUrl);
+        } else {
+          toast.error(query.message);
+        }
+      } else {
+        //create a new test
+        const query = await createTestAction(
+          initialTestObject.classroomId,
+          testState
+        );
+        console.log("result of query is", query);
+        if (query.success) {
+          //redirect to the test page
+          const newUrl = pathName.split("/").slice(0, 5).join("/");
+          router.push(newUrl);
+        } else {
+          toast.error(query.message);
+        }
+      }
+    }
   };
 
   return (
@@ -168,7 +200,7 @@ export default function UpsertTestPage({
           onClick={formSubmitionHandler}
           className="bg-black text-white p-2 rounded-xl w-1/2"
         >
-          Submit
+          {initialTestObject.id ? "Update" : "Create"}
         </button>
       </section>
     </PageWithNavbar>

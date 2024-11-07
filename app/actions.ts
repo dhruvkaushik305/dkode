@@ -2,6 +2,7 @@
 import { auth, signIn } from "@/auth";
 import db from "@/db";
 import bcrypt from "bcryptjs";
+import { TestType } from "./types";
 
 export async function createUserAction(formData: FormData) {
   try {
@@ -20,7 +21,7 @@ export async function createUserAction(formData: FormData) {
     //hash the user's password before storing it
     const hashedPassword = await bcrypt.hash(
       formData.get("password") as string,
-      10,
+      10
     );
     //add the user to the db
     const queryCreateUser = await db.user.create({
@@ -47,7 +48,7 @@ export async function createUserAction(formData: FormData) {
   } catch (err) {
     console.error(
       "the following error occurred while creating a new user",
-      err,
+      err
     );
     return { success: false, message: "Something went wrong" };
   }
@@ -117,8 +118,105 @@ export async function createClassroomAction(name: string) {
   } catch (err) {
     console.error(
       "The following error occured while creating a new classroom",
-      err,
+      err
     );
+    return { success: false, message: "Something went wrong" };
+  }
+}
+
+//TODO add a check that specific actions are only called by teachers
+export async function createTestAction(
+  classroomId: string,
+  testData: TestType
+) {
+  const session = await auth();
+
+  if (!session) return { success: false, message: "Unauthorised" };
+
+  try {
+    const newTest = await db.test.create({
+      data: {
+        name: testData.name,
+        startDateTime: testData.startDateTime,
+        endDateTime: testData.endDateTime,
+        questions: {
+          create: testData.questions.map((question) => ({
+            statement: question.statement,
+            testCases: {
+              create: question.testCases,
+            },
+          })),
+        },
+        classroomId,
+      },
+    });
+    console.log("result of test creation", newTest);
+    return { success: true, message: "Test Created" };
+  } catch (err) {
+    console.error("The following error occured while createing a test", err);
+    return { success: false, message: "Something went wrong" };
+  }
+}
+
+export async function editTestAction(
+  classroomId: string,
+  testId: string,
+  testData: TestType
+) {
+  const session = await auth();
+
+  if (!session) return { success: false, message: "Unauthorised" };
+
+  try {
+    const editedTest = await db.test.update({
+      where: {
+        id: testId,
+      },
+      data: {
+        name: testData.name,
+        startDateTime: testData.startDateTime,
+        endDateTime: testData.endDateTime,
+        questions: {
+          deleteMany: {
+            testId: testId,
+            id: { notIn: testData.questions.map((q) => q.id!) },
+          },
+          upsert: testData.questions.map((question) => ({
+            where: { id: question.id },
+            create: {
+              statement: question.statement,
+              testCases: {
+                create: question.testCases,
+              },
+            },
+            update: {
+              statement: question.statement,
+              testCases: {
+                deleteMany: {
+                  questionId: question.id,
+                  id: { notIn: question.testCases.map((tc) => tc.id!) },
+                },
+                upsert: question.testCases.map((testCase) => ({
+                  where: { id: testCase.id },
+                  create: {
+                    input: testCase.input,
+                    output: testCase.output,
+                  },
+                  update: {
+                    input: testCase.input,
+                    output: testCase.output,
+                  },
+                })),
+              },
+            },
+          })),
+        },
+        classroomId,
+      },
+    });
+    return { success: true, message: "Test Updated" };
+  } catch (err) {
+    console.error("The following error occured while editing the test", err);
     return { success: false, message: "Something went wrong" };
   }
 }
