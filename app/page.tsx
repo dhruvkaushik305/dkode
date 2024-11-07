@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import Image from "next/image";
 import Link from "next/link";
+import { v4 as uuid } from "uuid";
 
 export default function Home() {
   return (
@@ -44,6 +45,7 @@ async function Navbar() {
     { name: "Login", href: "/login" },
     { name: "Register", href: "/signup" },
   ];
+
   return (
     <nav className="flex justify-around items-center w-full bg-white/70 p-2">
       <Link href="/">
@@ -51,9 +53,9 @@ async function Navbar() {
       </Link>
       <section className="flex justify-center items-center gap-5">
         {!session ? ( //show the login, register buttons if the user is not logged in
-          navButtons.map((button, index) => (
+          navButtons.map((button) => (
             <Link
-              key={index}
+              key={uuid()}
               href={button.href}
               className="border-b border-white transition-colors hover:border-zinc-500 duration-300"
             >
@@ -75,8 +77,8 @@ async function Navbar() {
 }
 
 async function GettingStartedButton() {
-  //fetch the user session
   const session = await auth();
+
   return (
     <>
       {!session ? ( //show the get started button if the user is not logged in
