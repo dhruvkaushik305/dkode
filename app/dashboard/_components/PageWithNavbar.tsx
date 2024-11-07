@@ -8,7 +8,7 @@ import Link from "next/link";
 export default function PageWithNavbar({
   children,
 }: {
-  children: React.ReactNode;
+  children: Readonly<React.ReactNode>;
 }) {
   return (
     <main className="flex h-full w-full">

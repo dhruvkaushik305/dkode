@@ -8,7 +8,7 @@ import { createUserAction } from "@/app/actions";
 
 export default function SignupForm() {
   const router = useRouter();
-  //state variable to show the error message
+
   const [errorMessage, setErrorMessage] = React.useState("");
   //state variable to show the pending state
   const [pending, setPending] = React.useState(false);
@@ -64,7 +64,7 @@ export default function SignupForm() {
           required
         />
       </label>
-      <label className="flex flex-col">
+      <div className="flex flex-col">
         <header className="font-medium text-xl">Sign up as </header>
         <div className="flex justify-around text-lg">
           <label className="flex gap-2">
@@ -81,9 +81,11 @@ export default function SignupForm() {
             <header>Teacher</header>
           </label>
         </div>
-      </label>
+      </div>
       <button
-        className={`gradient-btn ${pending ? "opacity-60 cursor-not-allowed" : ""}`}
+        className={`gradient-btn ${
+          pending ? "opacity-60 cursor-not-allowed" : ""
+        }`}
         disabled={pending}
       >
         Signup

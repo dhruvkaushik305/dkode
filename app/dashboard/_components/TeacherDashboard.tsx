@@ -7,6 +7,7 @@ import {
   OpenedModalComponent,
 } from "./TeacherClientModals";
 import Link from "next/link";
+import { v4 as uuid } from "uuid";
 
 export default function TeacherDashboard() {
   return (
@@ -53,15 +54,15 @@ async function Classrooms() {
           whenClose={<ClosedModalComponent />}
         />
       ) : (
-        classrooms.map((classroom, index) => (
-          <ClassroomCard key={index} classroom={classroom} />
+        classrooms.map((classroom) => (
+          <ClassroomCard key={uuid()} classroom={classroom} />
         ))
       )}
     </section>
   );
 }
 
-function ClassroomCard({ classroom }: { classroom: ClassroomType }) {
+function ClassroomCard({ classroom }: { classroom: Readonly<ClassroomType> }) {
   return (
     <Link href={`/dashboard/classroom/${classroom.id}`}>{classroom.name}</Link>
   );

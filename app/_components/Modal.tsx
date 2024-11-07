@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import { X } from "lucide-react";
 
@@ -7,15 +8,15 @@ interface ModalProps {
   whenClose: React.ReactNode;
 }
 
-export default function Modal({ whenOpen, whenClose }: ModalProps) {
-  const [isOpen, setIsOpened] = React.useState(false);
+export default function Modal({ whenOpen, whenClose }: Readonly<ModalProps>) {
+  const [isOpen, setIsOpen] = React.useState(false);
 
   const openModalHandler = () => {
-    setIsOpened(true);
+    setIsOpen(true);
   };
 
   const closeModalHandler = () => {
-    setIsOpened(false);
+    setIsOpen(false);
   };
 
   const preventPropogationHandler = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -25,13 +26,16 @@ export default function Modal({ whenOpen, whenClose }: ModalProps) {
   return (
     <>
       {!isOpen ? (
-        <span onClick={openModalHandler} className="cursor-pointer">
-          {whenClose}
-        </span>
+        <button onClick={openModalHandler}>{whenClose}</button>
       ) : (
         <div
           className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
           onClick={closeModalHandler}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              closeModalHandler();
+            }
+          }}
         >
           <div
             className="relative p-2 bg-white rounded-xl flex flex-col shadow-lg max-w-lg w-full"

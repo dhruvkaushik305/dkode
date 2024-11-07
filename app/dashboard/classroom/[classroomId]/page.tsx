@@ -6,7 +6,7 @@ import TestButton from "./_components/Buttons";
 export default async function Page({
   params,
 }: {
-  params: { classroomId: string };
+  params: Readonly<{ classroomId: string }>;
 }) {
   return (
     <PageWithNavbar>
@@ -22,7 +22,7 @@ export default async function Page({
   );
 }
 
-async function Tests({ classroomId }: { classroomId: string }) {
+async function Tests({ classroomId }: Readonly<{ classroomId: string }>) {
   let tests: TestType[] = [];
 
   const query = await db.test.findMany({
@@ -59,6 +59,6 @@ async function Tests({ classroomId }: { classroomId: string }) {
   );
 }
 
-function TestCard({ test }: { test: TestType }) {
+function TestCard({ test }: Readonly<{ test: TestType }>) {
   return <div>{test.name}</div>;
 }

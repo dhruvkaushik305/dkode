@@ -3,13 +3,12 @@
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 
-export default function TestButton({
-  testId,
-  children,
-}: {
+interface Props {
   testId?: string;
   children: React.ReactNode;
-}) {
+}
+
+export default function TestButton({ testId, children }: Readonly<Props>) {
   const pathName = usePathname();
 
   const router = useRouter();

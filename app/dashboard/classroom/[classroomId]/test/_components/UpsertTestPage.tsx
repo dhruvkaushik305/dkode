@@ -7,14 +7,17 @@ import { Plus, PlusCircle, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { createTestAction, editTestAction } from "@/app/actions";
 import { usePathname, useRouter } from "next/navigation";
+import { v4 as uuid } from "uuid";
+
+interface Props {
+  testId: string;
+  existingTest?: TestType;
+}
 
 export default function UpsertTestPage({
   testId,
   existingTest,
-}: {
-  readonly testId: string;
-  readonly existingTest?: TestType;
-}) {
+}: Readonly<Props>) {
   const router = useRouter();
 
   const pathName = usePathname();
@@ -183,7 +186,7 @@ export default function UpsertTestPage({
         <section className="w-full flex flex-col gap-3">
           {testState.questions.map((question, index) => (
             <RenderQuestion
-              key={index}
+              key={uuid()}
               question={question}
               index={index}
               setTestState={setTestState}
@@ -271,7 +274,7 @@ function RenderQuestion({
           <header className="font-medium text-xl">Testcases:</header>
           {question.testCases.map((testCase, tcIndex) => (
             <RenderTestCase
-              key={tcIndex}
+              key={uuid()}
               testCase={testCase}
               questionIndex={index}
               testCaseIndex={tcIndex}
