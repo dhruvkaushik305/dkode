@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import React from "react";
 import {
   createTestAction,
@@ -8,10 +8,10 @@ import {
   fetchTestAction,
 } from "@/app/actions";
 import { QuestionType, TestCaseType, TestType } from "@/app/types";
-import { useRouter } from "next/router";
 import { toast } from "sonner";
 import PageWithNavbar from "@/app/dashboard/_components/PageWithNavbar";
-import { Plus, PlusCircle, Trash } from "lucide-react";
+import { Info, Plus, PlusCircle, Trash } from "lucide-react";
+import { v4 as uuid } from "uuid";
 
 interface Props {
   params: { classroomId: string };
@@ -71,14 +71,8 @@ function UpsertTestPage({
 
   const [testState, setTestState] = React.useState<TestType>(initialTestObject);
 
-  React.useEffect(() => {
-    if (existingTest) {
-      setTestState(existingTest);
-    }
-  }, []);
-
-  console.log("the initial thing is", initialTestObject);
-  console.log("the state variable is", testState);
+  console.log("initially it was", initialTestObject);
+  console.log("state variable is", testState);
 
   const generalChangeHandler = (field: string, value: any) => {
     setTestState((prevState) => ({ ...prevState, [field]: value }));
@@ -90,6 +84,7 @@ function UpsertTestPage({
       questions: [
         ...prevState.questions,
         {
+          id: uuid(),
           statement: "Untitled",
           testCases: [],
         },
@@ -98,7 +93,6 @@ function UpsertTestPage({
   };
 
   const formSubmitionHandler = async () => {
-    //TODO ensure that the start time is lesser than the end time
     //check that the general is not empty
     if (
       testState.name === "" ||
@@ -106,6 +100,12 @@ function UpsertTestPage({
       testState.endDateTime === null
     ) {
       toast.error("General Options in the form are incomplete");
+      return;
+    }
+
+    //check that the startTime is before the endTime
+    if (testState.startDateTime > testState.endDateTime) {
+      toast.error("End date&time must be after the Start date&time");
       return;
     }
 
@@ -231,8 +231,7 @@ function UpsertTestPage({
         <section className="w-full flex flex-col gap-3">
           {testState.questions.map((question, index) => (
             <RenderQuestion
-              // key={uuid()}
-              key={index}
+              key={question.id}
               question={question}
               index={index}
               setTestState={setTestState}
@@ -277,7 +276,7 @@ function RenderQuestion({
   const addTestCaseHandler = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
-    const newTestCase = { input: "", output: "", visibility: true };
+    const newTestCase = { id: uuid(), input: "", output: "", visibility: true };
 
     setTestState((prevState) => ({
       ...prevState,
@@ -320,8 +319,7 @@ function RenderQuestion({
           <header className="font-medium text-xl">Testcases:</header>
           {question.testCases.map((testCase, tcIndex) => (
             <RenderTestCase
-              // key={uuid()}
-              key={index}
+              key={testCase.id}
               testCase={testCase}
               questionIndex={index}
               testCaseIndex={tcIndex}
@@ -423,10 +421,13 @@ function RenderTestCase({
         <header className="font-medium text-xl ">Input:</header>
         <input
           type="text"
-          value={testCase.input}
+          value={testCase.input.replace(/ /g, "_")}
           onChange={(e) => testCaseChangeHandler("input", e.target.value)}
           className="input-box"
         />
+        <p className="text-sm italic flex items-center gap-2">
+          <Info size={15} /> _ denotes space
+        </p>
       </label>
       <label className="flex flex-col gap-2">
         <header className="font-medium text-xl">Output:</header>
@@ -436,6 +437,9 @@ function RenderTestCase({
           onChange={(e) => testCaseChangeHandler("output", e.target.value)}
           className="input-box"
         />
+        <p className="text-sm italic flex items-center gap-2">
+          <Info size={15} /> _ denotes space
+        </p>
       </label>
     </div>
   );

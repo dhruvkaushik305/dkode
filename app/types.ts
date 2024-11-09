@@ -16,14 +16,14 @@ export type TestType = {
 };
 
 export type QuestionType = {
-  id?: string;
+  id: string;
   statement: string;
   testId?: string;
   testCases: TestCaseType[];
 };
 
 export type TestCaseType = {
-  id?: string;
+  id: string;
   input: string;
   output: string;
   visibility: boolean;
