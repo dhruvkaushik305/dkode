@@ -273,5 +273,38 @@ export async function deleteTestAction(testId: string) {
 
   if (!session) return { success: false, message: "Unauthenticated" };
 
-  if (session.user.role !== "TEACHER") return;
+  if (session.user.role !== "TEACHER")
+    return { success: false, message: "Unauthorised" };
+
+  try {
+    const query = await db.$transaction(async (tx) => {
+      await tx.testCase.deleteMany({
+        where: {
+          question: {
+            testId: testId,
+          },
+        },
+      });
+
+      await tx.question.deleteMany({
+        where: {
+          testId: testId,
+        },
+      });
+
+      return tx.test.delete({
+        where: { id: testId },
+      });
+    });
+
+    if (query) {
+      return { success: true, message: "Test deleted successfully" };
+    } else {
+      return { success: false, message: "Couldn't delete test" };
+    }
+  } catch (err) {
+    console.error("The following error occured while deleting the test", err);
+
+    return { success: false, message: "Something went wrong" };
+  }
 }

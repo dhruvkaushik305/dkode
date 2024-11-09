@@ -1,7 +1,7 @@
 import { TestType } from "@/app/types";
 import PageWithNavbar from "../../_components/PageWithNavbar";
 import db from "@/db";
-import TestButton from "./_components/Buttons";
+import { DeleteTestButton, TestButton } from "./_components/Buttons";
 
 export default async function Page({
   params,
@@ -43,7 +43,7 @@ async function Tests({ classroomId }: Readonly<{ classroomId: string }>) {
   }
 
   return (
-    <section className="grow flex justify-start items-start gap-5 pt-10 p-4">
+    <section className="grow flex justify-center items-center gap-5 pt-10 p-4">
       {tests.length === 0 ? (
         <TestButton>
           <span className="text-blue-500 hover:underline">Create Test</span>
@@ -68,8 +68,8 @@ function TestCard({ test }: Readonly<{ test: TestType }>) {
 
   return (
     <div className="bg-gray-300/50 min-w-[20rem] min-h-[7rem] rounded-md flex flex-col justify-center items-center p-2">
-      <header className="text-xl font-medium grow w-full flex items-center">
-        {test.name}
+      <header className="text-xl font-medium grow w-full flex items-center justify-between">
+        {test.name} <DeleteTestButton id={test.id!} />
       </header>
       <footer className="w-full text-right flex justify-between">
         <p>{test.questions.length} Questions</p>
