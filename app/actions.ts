@@ -239,7 +239,8 @@ export async function editTestAction(
 export async function fetchTestAction(testId: string) {
   const session = await auth();
 
-  if (!session) return { success: false, message: "Unauthenticated" };
+  if (!session)
+    return { success: false, message: "Unauthenticated", test: undefined };
 
   try {
     const query = await db.test.findUnique({
@@ -253,13 +254,24 @@ export async function fetchTestAction(testId: string) {
       },
     });
 
+    if (!query) {
+      return { success: false, message: "No Test Found", test: undefined };
+    }
+
     return { success: true, test: query };
   } catch (err) {
     console.error(
       "The following error occured while fetching the test data",
       err
     );
-
-    return { success: false, message: "Something went wrong" };
+    return { success: false, message: "Something went wrong", test: undefined };
   }
+}
+
+export async function deleteTestAction(testId: string) {
+  const session = await auth();
+
+  if (!session) return { success: false, message: "Unauthenticated" };
+
+  if (session.user.role !== "TEACHER") return;
 }

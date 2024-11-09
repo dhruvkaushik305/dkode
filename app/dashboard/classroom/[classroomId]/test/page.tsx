@@ -19,17 +19,26 @@ interface Props {
 
 export default function Page({ params }: Readonly<Props>) {
   const searchParams = useSearchParams();
-
   const testId = searchParams.get("id");
 
-  const [test, setTest] = React.useState<TestType | null>(null);
+  const defaultTestObject = {
+    name: "Untitled",
+    startDateTime: new Date(Date.now()),
+    endDateTime: new Date(Date.now() + 60 * 60 * 1000),
+    startedAt: null,
+    classroomId: params.classroomId,
+    questions: [],
+  };
+
+  const [test, setTest] = React.useState<TestType>(defaultTestObject);
 
   React.useEffect(() => {
     if (testId) {
       fetchTestAction(testId!)
         .then((response) => {
-          if (response.success) {
-            setTest(response.test!);
+          if (response.success && response.test) {
+            setTest(response.test);
+            console.log("TEST --> ", test);
           }
         })
         .catch((err) => {});
@@ -38,41 +47,29 @@ export default function Page({ params }: Readonly<Props>) {
 
   return (
     <main className="h-full">
-      {test ? (
-        <UpsertTestPage classroomId={params.classroomId} existingTest={test!} />
-      ) : (
-        <UpsertTestPage classroomId={params.classroomId} />
-      )}
+      <UpsertTestPage
+        classroomId={params.classroomId}
+        testState={test}
+        setTestState={setTest}
+      />
     </main>
   );
 }
 
 interface UpsertTestPageProps {
   classroomId: string;
-  existingTest?: TestType;
+  testState: TestType;
+  setTestState: React.Dispatch<React.SetStateAction<TestType>>;
 }
 
 function UpsertTestPage({
   classroomId,
-  existingTest,
+  testState,
+  setTestState,
 }: Readonly<UpsertTestPageProps>) {
   const router = useRouter();
 
   const pathName = usePathname();
-
-  const initialTestObject = existingTest ?? {
-    name: "Untitled",
-    startDateTime: new Date(Date.now()),
-    endDateTime: new Date(Date.now() + 60 * 60 * 1000),
-    startedAt: null,
-    classroomId: classroomId,
-    questions: [],
-  };
-
-  const [testState, setTestState] = React.useState<TestType>(initialTestObject);
-
-  console.log("initially it was", initialTestObject);
-  console.log("state variable is", testState);
 
   const generalChangeHandler = (field: string, value: any) => {
     setTestState((prevState) => ({ ...prevState, [field]: value }));
