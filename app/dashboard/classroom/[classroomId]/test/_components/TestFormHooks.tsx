@@ -5,8 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 const testCaseSchema = z.object({
   id: z.string(),
-  input: z.string().min(1, { message: "Input can't be empty" }),
-  output: z.string().min(1, { message: "Output can't be empty" }),
+  input: z.string().min(1, { message: "input cannot be empty" }),
+  output: z.string().min(1, { message: "output cannot be empty" }),
   visibility: z.boolean(),
 });
 
@@ -16,20 +16,20 @@ const questionSchema = z.object({
   id: z.string(),
   statement: z
     .string()
-    .min(5, { message: "Question Statement must be atleast 5 characters" }),
+    .min(5, { message: "statement must have atleast 5 characters" }),
   testCases: z
     .array(testCaseSchema)
-    .min(1, { message: "Question must have atleast one test case" }),
+    .min(1, { message: "questions must have atleaset one test case" }),
 });
 
 const testSchema = z.object({
   id: z.optional(z.string()),
-  name: z.string().min(2, { message: "Name must be atleast 2 characters" }),
-  startDateTime: z.coerce.date({ message: "Enter a valid date-time" }),
-  endDateTime: z.coerce.date({ message: "Enter a valid date-time" }),
+  name: z.string().min(2, { message: "name must have atleast 2 characters" }),
+  startDateTime: z.coerce.date({ message: "enter a valid start date-time" }),
+  endDateTime: z.coerce.date({ message: "enter a valid end date-time" }),
   questions: z
     .array(questionSchema)
-    .nonempty({ message: "Test must have atleast one question" }),
+    .nonempty({ message: "test must have atleast one question" }),
 });
 
 export type TestFormType = z.infer<typeof testSchema>;

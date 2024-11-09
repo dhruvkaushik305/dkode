@@ -1,9 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 .input-box {
-    @apply rounded-md p-3 w-full border border-zinc-200 focus:border-zinc-400 focus:outline-none;
+  @apply rounded-md p-3 w-full border border-zinc-200 focus:border-zinc-400 focus:outline-none;
 }
+
 .gradient-btn {
-    @apply bg-gradient-to-l from-blue-800 to-blue-500 text-white text-lg py-3 px-6 rounded-lg;
+  @apply bg-gradient-to-l from-blue-800 to-blue-500 text-white text-lg py-3 px-6 rounded-lg;
+}
+
+.form-error {
+  @apply font-medium text-red-500 italic text-sm w-full;
 }

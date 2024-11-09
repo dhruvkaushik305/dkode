@@ -2,7 +2,7 @@
 
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { TestFormProvider, TestFormType } from "./TestFormHooks";
-import { Trash } from "lucide-react";
+import { CirclePlus, Plus, Trash } from "lucide-react";
 import { v4 as uuid } from "uuid";
 
 export default function TestForm() {
@@ -24,30 +24,60 @@ function TestFormContent() {
     console.log("data received is", data);
   };
 
-  const onError = (errors: any) => {
-    console.log("errros faced are", errors);
-  };
   return (
     <form
-      className="p-5 flex flex-col gap-5"
-      onSubmit={handleSubmit(formSubmissionHandler, onError)}
+      className="h-full flex flex-col p-4 gap-5 items-center"
+      onSubmit={handleSubmit(formSubmissionHandler)}
     >
-      <label>
-        <p>Name</p>
-        <input type="text" {...register("name")} />
-        <p>{errors.name?.message}</p>
+      <header className="p-2 text-2xl font-medium border-b border-gray-300 w-full">
+        Create Test
+      </header>
+      <label className="flex flex-col gap-2 w-full">
+        <header className="text-xl font-medium">Name</header>
+        <input
+          type="text"
+          {...register("name")}
+          className="input-box"
+          placeholder="Enter the name of the test"
+        />
+        <p className="form-error">{errors.name?.message}</p>
       </label>
-      <label>
-        <input type="datetime-local" {...register("startDateTime")} />
-        <p>{errors.startDateTime?.message}</p>
-      </label>
-      <label>
-        <input type="datetime-local" {...register("endDateTime")} />
-        <p>{errors.endDateTime?.message}</p>
-      </label>
+      <div className="flex gap-2 w-full items-center">
+        <label className="flex flex-col gap-2 items-center grow">
+          <div className="flex gap-4 items-center w-full">
+            <header className="text-xl font-medium text-nowrap">
+              Start Date-Time
+            </header>
+            <input
+              type="datetime-local"
+              {...register("startDateTime")}
+              className="input-box"
+            />
+          </div>
+          <p className="form-error">{errors.startDateTime?.message}</p>
+        </label>
+        <label className="flex flex-col gap-2 items-center grow">
+          <div className="flex gap-4 items-center w-full">
+            <header className="text-xl font-medium text-nowrap">
+              End Date-Time
+            </header>
+            <input
+              type="datetime-local"
+              {...register("endDateTime")}
+              className="input-box"
+            />
+          </div>
+          <p className="form-error">{errors.endDateTime?.message}</p>
+        </label>
+      </div>
       <RenderQuestions />
       <p>{errors.questions?.message}</p>
-      <button type="submit">Submit</button>
+      <button
+        type="submit"
+        className="bg-black text-white rounded-xl p-2 w-1/2"
+      >
+        Submit
+      </button>
     </form>
   );
 }
@@ -64,6 +94,14 @@ function RenderQuestions() {
     control,
   });
 
+  const questionDeletionHandler = (
+    e: React.MouseEvent<SVGSVGElement, MouseEvent>,
+    index: number
+  ) => {
+    e.preventDefault();
+    remove(index);
+  };
+
   const sampleQuestion = {
     id: uuid(),
     statement: "",
@@ -71,34 +109,45 @@ function RenderQuestions() {
   };
 
   return (
-    <section>
+    <section className="w-full flex flex-col gap-5">
       {fields.map((question, questionIndex) => {
         return (
-          <div key={question.id}>
-            <label>
-              <p>Question {questionIndex + 1}</p>
+          <section key={question.id} className="flex flex-col gap-5">
+            <header className="text-xl font-medium flex justify-between items-center border-b border-gray-300">
+              Question {questionIndex + 1}
               <Trash
-                onClick={(e) => {
-                  e.preventDefault();
-                  remove(questionIndex);
-                }}
+                className="cursor-pointer"
+                size={20}
+                onClick={(e) => questionDeletionHandler(e, questionIndex)}
               />
-              <textarea {...register(`questions.${questionIndex}.statement`)} />
-              <p>{errors.questions?.[questionIndex]?.statement?.message}</p>
+            </header>
+            <label className="flex-col gap-2 w-full">
+              <header className="text-xl font-medium">Statement</header>
+              <textarea
+                {...register(`questions.${questionIndex}.statement`)}
+                placeholder="Enter the statement here..."
+                className="w-full h-[10rem] focus:outline-none p-2 rounded-md"
+              />
+              <p className="form-error">
+                {errors.questions?.[questionIndex]?.statement?.message}
+              </p>
             </label>
             <RenderTestCases questionIndex={questionIndex} />
-            <p>{errors.questions?.[questionIndex]?.testCases?.message}</p>
-          </div>
+            <p className="form-error">
+              {errors.questions?.[questionIndex]?.testCases?.message}
+            </p>
+          </section>
         );
       })}
 
       <button
         type="button"
+        className="p-2 border border-blue-500 flex items-center gap-2 rounded-md w-fit"
         onClick={() => {
           append(sampleQuestion);
         }}
       >
-        Add Question
+        <Plus size={20} color="blue" /> Question
       </button>
     </section>
   );
@@ -116,6 +165,14 @@ function RenderTestCases({ questionIndex }: { questionIndex: number }) {
     control,
   });
 
+  const testCaseDeletionHandler = (
+    e: React.MouseEvent<SVGSVGElement, MouseEvent>,
+    index: number
+  ) => {
+    e.preventDefault();
+    remove(index);
+  };
+
   const sampleTestCase = {
     id: uuid(),
     input: "",
@@ -124,28 +181,29 @@ function RenderTestCases({ questionIndex }: { questionIndex: number }) {
   };
 
   return (
-    <section>
+    <section className="w-full flex flex-col gap-5">
       {fields.map((testCase, testCaseIndex) => {
         return (
-          <div key={testCase.id}>
-            <header>
+          <section key={testCase.id} className="w-full flex flex-col gap-5">
+            <header className="text-xl font-medium flex justify-between items-center border-b border-gray-300">
               Test Case {testCaseIndex + 1}
               <Trash
-                onClick={(e) => {
-                  e.preventDefault();
-                  remove(testCaseIndex);
-                }}
+                className="cursor-pointer"
+                size={20}
+                onClick={(e) => testCaseDeletionHandler(e, questionIndex)}
               />
             </header>
-            <label>
-              <p>Input</p>
+            <label className="flex-col gap-2 w-full">
+              <header className="text-xl font-medium">Input</header>
               <input
                 type="text"
+                placeholder="Enter the input here"
+                className="input-box"
                 {...register(
                   `questions.${questionIndex}.testCases.${testCaseIndex}.input`
                 )}
               />
-              <p>
+              <p className="form-error">
                 {
                   errors.questions?.[questionIndex]?.testCases?.[testCaseIndex]
                     ?.input?.message
@@ -153,30 +211,33 @@ function RenderTestCases({ questionIndex }: { questionIndex: number }) {
               </p>
             </label>
             <label>
-              <p>Output</p>
+              <header className="text-xl font-medium">Output</header>
               <input
                 type="text"
+                className="input-box"
+                placeholder="Enter the input here"
                 {...register(
                   `questions.${questionIndex}.testCases.${testCaseIndex}.output`
                 )}
               />
-              <p>
+              <p className="form-error">
                 {
                   errors.questions?.[questionIndex]?.testCases?.[testCaseIndex]
                     ?.output?.message
                 }
               </p>
             </label>
-          </div>
+          </section>
         );
       })}
       <button
         type="button"
+        className="p-2 border border-red-500 flex items-center gap-2 rounded-md w-fit"
         onClick={() => {
           append(sampleTestCase);
         }}
       >
-        Add Test Case
+        Case <CirclePlus size="20" color="red" />
       </button>
     </section>
   );
