@@ -235,3 +235,31 @@ export async function editTestAction(
     return { success: false, message: "Something went wrong" };
   }
 }
+
+export async function fetchTestAction(testId: string) {
+  const session = await auth();
+
+  if (!session) return { success: false, message: "Unauthenticated" };
+
+  try {
+    const query = await db.test.findUnique({
+      where: { id: testId },
+      include: {
+        questions: {
+          include: {
+            testCases: true,
+          },
+        },
+      },
+    });
+
+    return { success: true, test: query };
+  } catch (err) {
+    console.error(
+      "The following error occured while fetching the test data",
+      err
+    );
+
+    return { success: false, message: "Something went wrong" };
+  }
+}
