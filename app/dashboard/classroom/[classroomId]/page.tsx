@@ -5,9 +5,9 @@ import TestButton from "./_components/Buttons";
 
 export default async function Page({
   params,
-}: {
-  params: Readonly<{ classroomId: string }>;
-}) {
+}: Readonly<{
+  params: { classroomId: string };
+}>) {
   return (
     <PageWithNavbar>
       <main className="h-full">
@@ -43,7 +43,7 @@ async function Tests({ classroomId }: Readonly<{ classroomId: string }>) {
   }
 
   return (
-    <section className="flex-1 flex items-center justify-center">
+    <section className="grow flex justify-start items-start gap-5 pt-10 p-4">
       {tests.length === 0 ? (
         <TestButton>
           <span className="text-blue-500 hover:underline">Create Test</span>
@@ -60,5 +60,23 @@ async function Tests({ classroomId }: Readonly<{ classroomId: string }>) {
 }
 
 function TestCard({ test }: Readonly<{ test: TestType }>) {
-  return <div>{test.name}</div>;
+  const durationMs = test.endDateTime.getTime() - test.startDateTime.getTime();
+  const durationHours = Math.floor(durationMs / (1000 * 60 * 60));
+  const durationMinutes = Math.floor(
+    (durationMs % (1000 * 60 * 60)) / (1000 * 60)
+  );
+
+  return (
+    <div className="bg-gray-300/50 min-w-[20rem] min-h-[7rem] rounded-md flex flex-col justify-center items-center p-2">
+      <header className="text-xl font-medium grow w-full flex items-center">
+        {test.name}
+      </header>
+      <footer className="w-full text-right flex justify-between">
+        <p>{test.questions.length} Questions</p>
+        <p>
+          {durationHours} h {durationMinutes} min
+        </p>
+      </footer>
+    </div>
+  );
 }
