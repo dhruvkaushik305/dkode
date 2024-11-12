@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import PageWithNavbar from "./_components/PageWithNavbar";
 import TeacherDashboard from "./_components/TeacherDashboard";
 import StudentDashboard from "./_components/StudentDashboard";
+import Navbar from "@/components/ui/navbar";
 
 export default async function Page() {
   const session = await auth();
@@ -13,13 +14,7 @@ export default async function Page() {
 
   return (
     <main className="h-full w-full">
-      <PageWithNavbar>
-        {session.user.role === "TEACHER" ? (
-          <TeacherDashboard />
-        ) : (
-          <StudentDashboard />
-        )}
-      </PageWithNavbar>
+      <Navbar />
     </main>
   );
 }
