@@ -12,11 +12,21 @@ export default async function Page({ params, searchParams }: Readonly<Props>) {
 
   const testId = searchParams["id"] || "new";
 
+  let test = null;
+
   try {
-    const test = await db.test.findUnique({
+    const query = await db.test.findUnique({
       where: { id: testId },
+      include: {
+        questions: {
+          include: {
+            testCases: true,
+          },
+        },
+      },
     });
 
+    test = query;
     console.log("the test fetched is", test);
   } catch (err) {
     console.error("The following error occurred while fetching the test", err);
@@ -24,7 +34,7 @@ export default async function Page({ params, searchParams }: Readonly<Props>) {
 
   return (
     <PageWithNavbar>
-      <TestForm />
+      <TestForm classroomId={classroomId} existingTest={test} />
     </PageWithNavbar>
   );
 }

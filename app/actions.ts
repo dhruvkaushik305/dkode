@@ -4,6 +4,7 @@ import { auth, signIn } from "@/auth";
 import db from "@/db";
 import bcrypt from "bcryptjs";
 import { TestType } from "./types";
+import { TestFormType } from "./dashboard/classroom/[classroomId]/test/_components/TestFormHooks";
 
 export async function createUserAction(formData: FormData) {
   try {
@@ -134,7 +135,7 @@ export async function createClassroomAction(name: string) {
 
 export async function createTestAction(
   classroomId: string,
-  testData: TestType
+  testData: TestFormType
 ) {
   const session = await auth();
 

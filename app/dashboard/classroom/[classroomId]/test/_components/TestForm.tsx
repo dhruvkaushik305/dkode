@@ -12,16 +12,31 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
+import { createTestAction } from "@/app/actions";
+import { TestType } from "@/app/types";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-export default function TestForm() {
+interface Props {
+  classroomId: string;
+  existingTest: TestType | null;
+}
+
+export default function TestForm({
+  classroomId,
+  existingTest,
+}: Readonly<Props>) {
   return (
     <TestFormProvider>
-      <TestFormContent />
+      <TestFormContent classroomId={classroomId} existingTest={existingTest} />
     </TestFormProvider>
   );
 }
 
-function TestFormContent() {
+function TestFormContent({ classroomId, existingTest }: Readonly<Props>) {
+  const router = useRouter();
+  const pathName = usePathname();
+
   const {
     register,
     formState: { errors },
@@ -30,8 +45,17 @@ function TestFormContent() {
     setValue,
   } = useFormContext<TestFormType>();
 
-  const formSubmissionHandler = (data: TestFormType) => {
-    console.log("data received is", data);
+  const formSubmissionHandler = async (data: TestFormType) => {
+    const query = await createTestAction(classroomId, data);
+
+    if (query.success) {
+      //redirect to the test page
+      const newUrl = pathName.split("/").slice(0, 4).join("/");
+
+      router.push(newUrl);
+    } else {
+      toast.error(query.message);
+    }
   };
 
   //FIXME startDateTime and endDateTime not showing the errors as others.
