@@ -13,3 +13,10 @@
 .form-error {
   @apply font-medium text-red-500 italic text-sm w-full;
 }
+
+@layer base {
+  :root {
+
+    --radius: 0.5rem
+  }
+}

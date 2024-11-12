@@ -25,8 +25,8 @@ const questionSchema = z.object({
 const testSchema = z.object({
   id: z.optional(z.string()),
   name: z.string().min(2, { message: "name must have atleast 2 characters" }),
-  startDateTime: z.coerce.date({ message: "enter a valid start date-time" }),
-  endDateTime: z.coerce.date({ message: "enter a valid end date-time" }),
+  startDateTime: z.date({ message: "enter a valid start date-time" }),
+  endDateTime: z.date({ message: "enter a valid end date time" }),
   questions: z
     .array(questionSchema)
     .nonempty({ message: "test must have atleast one question" }),

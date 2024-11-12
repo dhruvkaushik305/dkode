@@ -39,4 +39,5 @@ next-env.d.ts
 .env
 
 #sonar files
-.scannerwork
+/.scannerwork/
+sonar-project.properties

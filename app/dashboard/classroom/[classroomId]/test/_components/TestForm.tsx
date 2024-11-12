@@ -4,6 +4,14 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 import { TestFormProvider, TestFormType } from "./TestFormHooks";
 import { CirclePlus, Plus, Trash } from "lucide-react";
 import { v4 as uuid } from "uuid";
+import React from "react";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
 
 export default function TestForm() {
   return (
@@ -18,12 +26,15 @@ function TestFormContent() {
     register,
     formState: { errors },
     handleSubmit,
+    control,
+    setValue,
   } = useFormContext<TestFormType>();
 
   const formSubmissionHandler = (data: TestFormType) => {
     console.log("data received is", data);
   };
 
+  //FIXME startDateTime and endDateTime not showing the errors as others.
   return (
     <form
       className="h-full flex flex-col p-4 gap-5 items-center"
@@ -42,36 +53,35 @@ function TestFormContent() {
         />
         <p className="form-error">{errors.name?.message}</p>
       </label>
-      <div className="flex gap-2 w-full items-center">
-        <label className="flex flex-col gap-2 items-center grow">
-          <div className="flex gap-4 items-center w-full">
-            <header className="text-xl font-medium text-nowrap">
-              Start Date-Time
-            </header>
-            <input
-              type="datetime-local"
-              {...register("startDateTime")}
-              className="input-box"
-            />
-          </div>
-          <p className="form-error">{errors.startDateTime?.message}</p>
-        </label>
-        <label className="flex flex-col gap-2 items-center grow">
-          <div className="flex gap-4 items-center w-full">
-            <header className="text-xl font-medium text-nowrap">
-              End Date-Time
-            </header>
-            <input
-              type="datetime-local"
-              {...register("endDateTime")}
-              className="input-box"
-            />
-          </div>
-          <p className="form-error">{errors.endDateTime?.message}</p>
-        </label>
+      <div className="flex gap-2 items-center w-full">
+        <FormField
+          control={control}
+          name="startDateTime"
+          render={({ field }) => (
+            <FormItem className="flex items-center gap-2 grow">
+              <FormLabel className="text-nowrap">Start date-time</FormLabel>
+              <FormControl>
+                <DateTimePicker value={field.value} onChange={field.onChange} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="endDateTime"
+          render={({ field }) => (
+            <FormItem className="flex items-center gap-2 grow">
+              <FormLabel className="text-nowrap">End date-time</FormLabel>
+              <FormControl>
+                <DateTimePicker value={field.value} onChange={field.onChange} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
       </div>
+
       <RenderQuestions />
-      <p>{errors.questions?.message}</p>
+      <p className="form-error">{errors.questions?.message}</p>
       <button
         type="submit"
         className="bg-black text-white rounded-xl p-2 w-1/2"
@@ -158,6 +168,7 @@ function RenderTestCases({ questionIndex }: { questionIndex: number }) {
     register,
     formState: { errors },
     control,
+    setValue,
   } = useFormContext<TestFormType>();
 
   const { append, remove, fields } = useFieldArray({
@@ -199,9 +210,24 @@ function RenderTestCases({ questionIndex }: { questionIndex: number }) {
                 type="text"
                 placeholder="Enter the input here"
                 className="input-box"
-                {...register(
+                {...(register(
                   `questions.${questionIndex}.testCases.${testCaseIndex}.input`
-                )}
+                ),
+                {
+                  onChange: (e) => {
+                    //convert the _ to spaces
+                    const originalValue = e.target.value.replace(/_/g, " ");
+                    //convert the spaces to _
+                    const displayValue = originalValue.replace(/ /g, "_");
+                    e.target.value = displayValue;
+                    //save the value with spaces.
+                    setValue(
+                      `questions.${questionIndex}.testCases.${testCaseIndex}.input`,
+                      originalValue,
+                      { shouldValidate: true }
+                    );
+                  },
+                })}
               />
               <p className="form-error">
                 {
@@ -216,9 +242,25 @@ function RenderTestCases({ questionIndex }: { questionIndex: number }) {
                 type="text"
                 className="input-box"
                 placeholder="Enter the input here"
-                {...register(
+                {...(register(
                   `questions.${questionIndex}.testCases.${testCaseIndex}.output`
-                )}
+                ),
+                {
+                  onChange: (e) => {
+                    //convert the _ to spaces
+                    const originalValue = e.target.value.replace(/_/g, " ");
+                    console.log("orignal value is", originalValue);
+                    //convert the spaces to _
+                    const displayValue = originalValue.replace(/ /g, "_");
+                    e.target.value = displayValue;
+                    //save the value with spaces.
+                    setValue(
+                      `questions.${questionIndex}.testCases.${testCaseIndex}.output`,
+                      originalValue,
+                      { shouldValidate: true }
+                    );
+                  },
+                })}
               />
               <p className="form-error">
                 {

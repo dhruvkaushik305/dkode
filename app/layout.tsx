@@ -15,6 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${rosario.variable}`}>
+      <head></head>
       <body className="w-screen h-screen">
         <section className="h-full">{children}</section>
         <Toaster />
