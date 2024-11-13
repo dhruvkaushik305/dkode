@@ -5,6 +5,17 @@ export type ClassroomType = {
   creatorId: string;
 };
 
+export type ClassroomWithStudentType = ClassroomType & {
+  students: {
+    id: string;
+    name: string;
+    email: string;
+    password: string;
+    createdAt: Date;
+    role: "STUDENT" | "TEACHER"
+  }[]
+}
+
 export type TestType = {
   id?: string;
   name: string;

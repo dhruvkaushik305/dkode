@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import SignOutButton from "./signoutButton";
 import Link from "next/link";
 import React from "react";
-import { Skeleton } from "./skeleton";
 
 export default function Navbar() {
   return (
@@ -28,14 +27,28 @@ async function Avatar() {
 
   const userId = session?.user.id;
 
-  const queryUserName = await db.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      name: true,
-    },
-  });
+  let userName = null;
+
+  try {
+    const queryUserName = await db.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        name: true,
+      },
+    });
+
+    if (queryUserName) {
+      userName = queryUserName.name;
+    }
+  } catch (err) {
+    console.error(
+      "The following error occurred while fetching the username for the avatar",
+      err
+    );
+    return;
+  }
 
   return (
     <figure>
@@ -45,14 +58,14 @@ async function Avatar() {
             variant={"secondary"}
             className="w-[2.5rem] h-[2.5rem] flex justify-center items-center text-md"
           >
-            {queryUserName && queryUserName.name[0].toUpperCase()}
+            {userName && userName[0].toUpperCase()}
           </Badge>
         </PopoverTrigger>
         <PopoverContent>
           <div className="flex flex-col gap-3">
             <section className="space-y-1 p-2 rounded-md border border-zinc-200">
               <header className="font-medium text-center text-md">
-                {queryUserName && queryUserName.name}
+                {userName && userName}
               </header>
               <header className="text-sm text-center underline underline-offset-4">
                 @{session && titleCase(session.user.role)}
