@@ -63,7 +63,7 @@ async function Avatar() {
         </PopoverTrigger>
         <PopoverContent>
           <div className="flex flex-col gap-3">
-            <section className="space-y-1 p-2 rounded-md border border-zinc-200">
+            <section className="space-y-1 p-2">
               <header className="font-medium text-center text-md">
                 {userName && userName}
               </header>
