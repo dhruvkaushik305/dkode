@@ -1,8 +1,17 @@
 import { auth } from "@/auth";
 import Navbar from "@/components/ui/navbar";
+import { ClassroomWithStudentType } from "../types";
 import db from "@/db";
-import { ClassroomType, ClassroomWithStudentType } from "../types";
-import { Library } from "lucide-react";
+import { BookPlus, Library } from "lucide-react";
+import {
+  DialogHeader,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTrigger,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import CreateClassroomForm from "@/components/ui/CreateClassroomButton";
 
 export default function Page() {
   return (
@@ -60,17 +69,41 @@ async function TeacherDashboard({
   } catch (err) {
     console.error(
       "The following error occurred while fetching the classrooms that the teacher is a part of",
-      err
+      err,
     );
   }
 
   return (
-    <section className="p-2 w-full max-w-screen-2xl mx-auto">
+    <section className="p-2 w-full max-w-screen-2xl mx-auto flex flex-col gap-5">
       <header className="text-4xl font-semibold p-2">Classrooms</header>
-      <section className="grid grid-cols-8 w-full mx-auto gap-6 p-4 rounded-lg border border-zinc-200">
-        {classrooms.map((classroom) => (
-          <TeacherClassroomCard key={classroom.id} classroom={classroom} />
-        ))}
+      {classrooms.length > 0 && (
+        <section className="grid grid-cols-8 w-full mx-auto gap-6 p-4 rounded-lg border border-zinc-200">
+          {classrooms.length > 0 &&
+            classrooms.map((classroom) => (
+              <TeacherClassroomCard key={classroom.id} classroom={classroom} />
+            ))}
+        </section>
+      )}
+      <section className="text-center">
+        {classrooms.length === 0 && (
+          <Dialog>
+            <DialogTrigger>
+              <header className="flex gap-2 items-center">
+                <BookPlus size={24} />
+                <header className="hover:underline">Create a classroom</header>
+              </header>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogTitle className="text-xl">
+                Create a new classroom
+              </DialogTitle>
+              <DialogHeader className="flex flex-col gap-5">
+                <CreateClassroomForm />
+              </DialogHeader>
+              <DialogDescription></DialogDescription>
+            </DialogContent>
+          </Dialog>
+        )}
       </section>
     </section>
   );

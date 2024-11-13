@@ -24,7 +24,7 @@ export async function createUserAction(formData: FormData) {
     //hash the user's password before storing it
     const hashedPassword = await bcrypt.hash(
       formData.get("password") as string,
-      10
+      10,
     );
 
     const queryCreateUser = await db.user.create({
@@ -52,7 +52,7 @@ export async function createUserAction(formData: FormData) {
   } catch (err) {
     console.error(
       "the following error occurred while creating a new user",
-      err
+      err,
     );
 
     return { success: false, message: "Something went wrong" };
@@ -97,7 +97,13 @@ export async function loginAction(formData: FormData) {
   }
 }
 
-export async function createClassroomAction(name: string) {
+type CreateClassroomResult =
+  | { success: true; message: string; id: string }
+  | { success: false; message: string };
+
+export async function createClassroomAction(
+  name: string,
+): Promise<CreateClassroomResult> {
   const session = await auth();
 
   if (!session) return { success: false, message: "Unauthenticated" };
@@ -126,7 +132,7 @@ export async function createClassroomAction(name: string) {
   } catch (err) {
     console.error(
       "The following error occured while creating a new classroom",
-      err
+      err,
     );
 
     return { success: false, message: "Something went wrong" };
@@ -135,7 +141,7 @@ export async function createClassroomAction(name: string) {
 
 export async function createTestAction(
   classroomId: string,
-  testData: TestFormType
+  testData: TestFormType,
 ) {
   const session = await auth();
 
@@ -173,7 +179,7 @@ export async function createTestAction(
 export async function editTestAction(
   classroomId: string,
   testId: string,
-  testData: TestType
+  testData: TestType,
 ) {
   const session = await auth();
 
@@ -263,7 +269,7 @@ export async function fetchTestAction(testId: string) {
   } catch (err) {
     console.error(
       "The following error occured while fetching the test data",
-      err
+      err,
     );
     return { success: false, message: "Something went wrong", test: undefined };
   }
