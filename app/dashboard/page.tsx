@@ -12,8 +12,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import CreateClassroomForm from "@/components/ui/CreateClassroomButton";
+import Link from "next/link";
 
-export default function Page() {
+export default function DashboardPage() {
   return (
     <main className="h-full w-full flex flex-col">
       <Navbar />
@@ -69,7 +70,7 @@ async function TeacherDashboard({
   } catch (err) {
     console.error(
       "The following error occurred while fetching the classrooms that the teacher is a part of",
-      err,
+      err
     );
   }
 
@@ -117,7 +118,10 @@ function TeacherClassroomCard({
   classroom,
 }: Readonly<TeacherClassroomCardProps>) {
   return (
-    <article className="bg-zinc-100 shadow-md w-full p-4 rounded-sm flex flex-col gap-2 col-span-2 h-[8rem] justify-around">
+    <Link
+      href={`/dashboard/classroom/${classroom.id}`}
+      className="bg-zinc-100 shadow-md w-full p-4 rounded-sm flex flex-col gap-2 col-span-2 h-[8rem] justify-around"
+    >
       <header className="text-xl flex items-center justify-between gap-1">
         <h2 className="w-full text-left hover:underline font-medium">
           {classroom.name}
@@ -128,7 +132,7 @@ function TeacherClassroomCard({
         <p>Strength: {classroom.students.length}</p>
         <p>Created at: {classroom.createdAt.toLocaleDateString()}</p>
       </footer>
-    </article>
+    </Link>
   );
 }
 

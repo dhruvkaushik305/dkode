@@ -13,7 +13,7 @@ import React from "react";
 
 export default function Navbar() {
   return (
-    <nav className="h-[4rem] w-full border-b border-zinc-200 flex items-center p-2 justify-around">
+    <nav className="h-[4rem] w-full border-b border-zinc-100 flex items-center p-2 justify-around">
       <Link href="/dashboard">
         <Image src="/logo.png" alt="logo" width={150} height={150} />
       </Link>
@@ -81,7 +81,7 @@ async function Avatar() {
 
 function titleCase(str: string) {
   const strList = str.toLowerCase().split(" ");
-  for (var i = 0; i < strList.length; i++) {
+  for (let i = 0; i < strList.length; i++) {
     strList[i] = strList[i].charAt(0).toUpperCase() + strList[i].slice(1);
   }
   return strList.join(" ");
