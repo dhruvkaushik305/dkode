@@ -16,6 +16,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import Link from "next/link";
 interface ClassroomPageProps {
   params: { classroomId: string };
 }
@@ -71,7 +72,7 @@ async function ClassroomInfo({ classroomId }: Readonly<ClassroomInfoProps>) {
   } catch (err) {
     console.error(
       "The following error occurred while fetching the classroom info",
-      err
+      err,
     );
   }
 
@@ -115,7 +116,7 @@ async function RenderTests({ classroomId }: Readonly<RenderTestsProps>) {
   } catch (err) {
     console.error(
       "The following error occurred while fetching the tests for the classroom",
-      err
+      err,
     );
   }
   return (
@@ -142,7 +143,7 @@ function TestCard({ test }: Readonly<TestCardProps>) {
   const durationHours = Math.floor(durationMs / (1000 * 60 * 60));
 
   const durationMinutes = Math.floor(
-    (durationMs % (1000 * 60 * 60)) / (1000 * 60)
+    (durationMs % (1000 * 60 * 60)) / (1000 * 60),
   );
 
   return (
@@ -157,7 +158,12 @@ function TestCard({ test }: Readonly<TestCardProps>) {
               <EllipsisVertical size="17" />
             </PopoverTrigger>
             <PopoverContent className="flex flex-col gap-3 w-[10rem]">
-              <Button variant="ghost">Edit</Button>
+              <Link
+                href={`/dashboard/classroom/${test.classroomId}/test/edit?id=${test.id}`}
+                className="hover:bg-gray-100 p-2 rounded-md text-center"
+              >
+                Edit
+              </Link>
               <DialogTrigger>
                 <header className="hover:bg-red-200 p-2 rounded-md">
                   Delete
