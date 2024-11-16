@@ -1,9 +1,21 @@
 import { ClassroomWithStudentType, TestType } from "@/app/types";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/ui/navbar";
-import { Popover, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import db from "@/db";
 import { Calendar, Clock, EllipsisVertical, List } from "lucide-react";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 interface ClassroomPageProps {
   params: { classroomId: string };
 }
@@ -139,11 +151,29 @@ function TestCard({ test }: Readonly<TestCardProps>) {
         <h2 className="w-full text-left hover:underline font-medium">
           {test.name}
         </h2>
-        <Popover>
-          <PopoverTrigger>
-            <EllipsisVertical size="17" />
-          </PopoverTrigger>
-        </Popover>
+        <Dialog>
+          <Popover>
+            <PopoverTrigger>
+              <EllipsisVertical size="17" />
+            </PopoverTrigger>
+            <PopoverContent className="flex flex-col gap-3 w-[10rem]">
+              <Button variant="ghost">Edit</Button>
+              <DialogTrigger>
+                <header className="hover:bg-red-200 p-2 rounded-md">
+                  Delete
+                </header>
+              </DialogTrigger>
+            </PopoverContent>
+          </Popover>
+          <DialogContent>
+            <DialogTitle>Are you sure?</DialogTitle>
+            <DialogDescription>
+              This will delete all the related info to this test.This action
+              cannot be undone
+            </DialogDescription>
+            <Button variant="destructive">Delete</Button>
+          </DialogContent>
+        </Dialog>
       </header>
       <Badge className="flex gap-1 items-center w-fit bg-zinc-200 text-black p-1">
         <Calendar size="15" />
