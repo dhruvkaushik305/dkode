@@ -1,4 +1,6 @@
 import NotFound from "@/app/dashboard/not-found";
+import Navbar from "@/components/ui/navbar";
+import TestPage from "@/components/ui/test-page";
 import db from "@/db";
 import { redirect } from "next/navigation";
 
@@ -11,7 +13,6 @@ export default async function EditTestPage({
 }: Readonly<EditTestPageProps>) {
   const testId = searchParams["id"];
 
-  //the testId should not be undefined/null
   if (testId === undefined) {
     return NotFound(); //not found page
   }
@@ -23,11 +24,17 @@ export default async function EditTestPage({
       where: {
         id: testId,
       },
+      include: {
+        questions: {
+          include: {
+            testCases: true,
+          },
+        },
+      },
     });
 
     if (query) test = query;
     else {
-      //if it is not a valid testId that exists then redirect it to the dashboard
       return NotFound();
     }
   } catch (err) {
@@ -39,5 +46,10 @@ export default async function EditTestPage({
     //this is not the user's fault that we ran into an error, therefore instead of a not found page, gracefully handle.
     redirect("/dashboard");
   }
-  return <main>{test?.name}</main>;
+  return (
+    <main>
+      <Navbar />
+      <TestPage existingTest={test} />
+    </main>
+  );
 }
