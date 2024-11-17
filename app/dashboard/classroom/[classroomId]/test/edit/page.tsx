@@ -5,10 +5,12 @@ import db from "@/db";
 import { redirect } from "next/navigation";
 
 interface EditTestPageProps {
+  params: { classroomId: string };
   searchParams: { [key: string]: string | undefined };
 }
 
 export default async function EditTestPage({
+  params,
   searchParams,
 }: Readonly<EditTestPageProps>) {
   const testId = searchParams["id"];
@@ -47,9 +49,9 @@ export default async function EditTestPage({
     redirect("/dashboard");
   }
   return (
-    <main>
+    <main className="flex flex-col gap-3">
       <Navbar />
-      <TestPage existingTest={test} />
+      <TestPage existingTest={test} classroomId={params.classroomId} />
     </main>
   );
 }

@@ -11,7 +11,6 @@ import z from "zod";
 import {
   Form,
   FormControl,
-  // FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,8 +22,11 @@ import { DateTimePicker } from "./datetime-picker";
 import { Button } from "./button";
 import { v4 as uuid } from "uuid";
 import { Textarea } from "./textarea";
-import { CirclePlus, Plus, Trash } from "lucide-react";
+import { CirclePlus, Plus, X } from "lucide-react";
 import { TestType } from "@/app/types";
+import { createTestAction, editTestAction } from "@/app/actions";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const testCaseSchema = z.object({
   id: z.string(),
@@ -32,8 +34,6 @@ const testCaseSchema = z.object({
   output: z.string().min(1, { message: "output cannot be empty" }),
   visibility: z.boolean(),
 });
-
-// type TestCaseFormInputType = z.infer<typeof testCaseSchema>;
 
 const questionSchema = z.object({
   id: z.string(),
@@ -49,19 +49,25 @@ const testSchema = z.object({
   id: z.optional(z.string()),
   name: z.string().min(2, { message: "name must have atleast 2 characters" }),
   startDateTime: z.date({ message: "enter a valid start date-time" }),
-  endDateTime: z.date({ message: "enter a valid end date time" }),
+  endDateTime: z.date({ message: "enter a valid end date-time" }),
+  classroomId: z.string(),
+  startedAt: z.date().nullable().optional().default(null),
   questions: z
     .array(questionSchema)
     .nonempty({ message: "test must have atleast one question" }),
 });
 
-type TestFormType = z.infer<typeof testSchema>;
+export type TestFormType = z.infer<typeof testSchema>;
 
 interface TestPageProps {
+  classroomId: string;
   existingTest?: TestType;
 }
 
-export default function TestPage({ existingTest }: Readonly<TestPageProps>) {
+export default function TestPage({
+  classroomId,
+  existingTest,
+}: Readonly<TestPageProps>) {
   const methods = useForm<TestFormType>({
     resolver: zodResolver(testSchema),
     defaultValues: existingTest
@@ -70,13 +76,15 @@ export default function TestPage({ existingTest }: Readonly<TestPageProps>) {
           name: existingTest.name,
           startDateTime: new Date(existingTest.startDateTime),
           endDateTime: new Date(existingTest.endDateTime),
+          startedAt: null,
+          classroomId: existingTest.classroomId,
           questions: existingTest.questions.map((question) => ({
             id: question.id,
             statement: question.statement,
             testCases: question.testCases.map((testCase) => ({
               id: testCase.id,
-              input: testCase.input,
-              ouptut: testCase.output,
+              input: testCase.input.replace(/ /g, "_"),
+              output: testCase.output.replace(/ /g, "_"),
               visibility: testCase.visibility,
             })),
           })),
@@ -86,6 +94,8 @@ export default function TestPage({ existingTest }: Readonly<TestPageProps>) {
           name: "Untitled",
           startDateTime: new Date(),
           endDateTime: new Date(),
+          classroomId: classroomId,
+          startedAt: null,
           questions: [
             {
               id: uuid(),
@@ -112,67 +122,101 @@ export default function TestPage({ existingTest }: Readonly<TestPageProps>) {
 
 function TestFormContent() {
   const form = useFormContext<TestFormType>();
+  const router = useRouter();
+  const pathName = usePathname();
 
-  const formSubmitionHandler = (data: TestFormType) => {
-    console.log(data);
+  const formSubmitionHandler = async (data: TestFormType) => {
+    if (data.id) {
+      //update test
+      const query = await editTestAction(data.classroomId, data.id, data);
+
+      if (query.success) {
+        const newUrl = pathName.split("/").slice(0, 4).join("/");
+
+        router.push(newUrl);
+      } else {
+        toast.error(query.message);
+      }
+    } else {
+      //create test
+      const query = await createTestAction(data.classroomId, data);
+
+      if (query.success) {
+        const newUrl = pathName.split("/").slice(0, 4).join("/");
+
+        router.push(newUrl);
+      } else {
+        toast.error(query.message);
+      }
+    }
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(formSubmitionHandler)}>
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter the name of the test here..."
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div>
-          <FormField
-            control={form.control}
-            name="startDateTime"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Start date-time</FormLabel>
-                <FormControl>
-                  <DateTimePicker
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="endDateTime"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>End date-time</FormLabel>
-                <FormControl>
-                  <DateTimePicker
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <RenderQuestions />
-        <Button type="submit">Submit</Button>
-      </form>
+      <main className="w-full max-w-screen-2xl mx-auto p-2 space-y-10">
+        <header className="text-3xl font-bold">Test Page</header>
+        <form
+          onSubmit={form.handleSubmit(formSubmitionHandler)}
+          className="space-y-10"
+        >
+          <section className="space-y-5">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter the name of the test here..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex gap-5 w-full">
+              <FormField
+                control={form.control}
+                name="startDateTime"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Start date-time</FormLabel>
+                    <FormControl>
+                      <DateTimePicker
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="endDateTime"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>End date-time</FormLabel>
+                    <FormControl>
+                      <DateTimePicker
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <RenderQuestions />
+          </section>
+          <Button type="submit" variant="default">
+            Done
+          </Button>
+        </form>
+      </main>
     </Form>
   );
 }
@@ -197,13 +241,16 @@ function RenderQuestions() {
   };
 
   return (
-    <section>
+    <section className="space-y-7">
       {fields.map((question, questionIndex) => {
         return (
-          <section key={question.id}>
-            <header className="text-xl font-medium flex justify-between items-center border-b border-gray-300">
+          <section
+            key={question.id}
+            className="space-y-5 border border-zinc-200 p-4 rounded-md"
+          >
+            <header className="text-xl font-medium flex justify-between items-center">
               Question {questionIndex + 1}
-              <Trash
+              <X
                 className="cursor-pointer"
                 size={20}
                 onClick={(e) => questionDeletionHandler(e, questionIndex)}
@@ -230,6 +277,7 @@ function RenderQuestions() {
         );
       })}
       <Button
+        variant="secondary"
         onClick={() => {
           append(sampleQuestion);
         }}
@@ -264,45 +312,35 @@ function RenderTestCases({ questionIndex }: Readonly<RenderTestCasesProps>) {
   };
 
   return (
-    <section>
+    <section className="space-y-7 pl-5">
       {fields.map((testCase, testCaseIndex) => {
         return (
-          <section key={testCase.id}>
-            <header className="text-xl font-medium flex justify-between items-center border-b border-gray-300">
+          <section key={testCase.id} className="space-y-5">
+            <header className="text-lg font-medium flex justify-between items-center">
               Test Case {testCaseIndex + 1}
-              <Trash
-                className="cursor-pointer"
-                size={20}
+              <X
+                className="cursor-pointer hover:bg-red-300 rounded-md"
+                size={18}
                 onClick={(e) => testCaseDeletionHandler(e, questionIndex)}
               />
             </header>
             <FormField
               control={form.control}
               name={`questions.${questionIndex}.testCases.${testCaseIndex}.input`}
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>Input</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Enter the input here..."
-                      {...field}
-                      onChange={(e) => {
-                        // Convert underscores to spaces for the original value
-                        const originalValue = e.target.value.replace(/_/g, " ");
-                        // Convert spaces to underscores for display
-                        const newDisplayValue = originalValue.replace(
-                          / /g,
-                          "_",
-                        );
-                        e.target.value = newDisplayValue;
-
-                        // Update the form value with the original value (spaces)
-                        form.setValue(
-                          `questions.${questionIndex}.testCases.${testCaseIndex}.input`,
-                          originalValue,
-                          { shouldValidate: true },
-                        );
-                      }}
+                      value={form
+                        .getValues(
+                          `questions.${questionIndex}.testCases.${testCaseIndex}.input`
+                        )
+                        .replace(/ /g, "_")}
+                      {...form.register(
+                        `questions.${questionIndex}.testCases.${testCaseIndex}.input`
+                      )}
                     />
                   </FormControl>
                   <FormMessage />
@@ -312,30 +350,20 @@ function RenderTestCases({ questionIndex }: Readonly<RenderTestCasesProps>) {
             <FormField
               control={form.control}
               name={`questions.${questionIndex}.testCases.${testCaseIndex}.output`}
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>Output</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Enter the ouptut here..."
-                      {...field}
-                      onChange={(e) => {
-                        // Convert underscores to spaces for the original value
-                        const originalValue = e.target.value.replace(/_/g, " ");
-                        // Convert spaces to underscores for display
-                        const newDisplayValue = originalValue.replace(
-                          / /g,
-                          "_",
-                        );
-                        e.target.value = newDisplayValue;
-
-                        // Update the form value with the original value (spaces)
-                        form.setValue(
-                          `questions.${questionIndex}.testCases.${testCaseIndex}.output`,
-                          originalValue,
-                          { shouldValidate: true },
-                        );
-                      }}
+                      placeholder="Enter the input here..."
+                      value={form
+                        .getValues(
+                          `questions.${questionIndex}.testCases.${testCaseIndex}.output`
+                        )
+                        .replace(/ /g, "_")}
+                      {...form.register(
+                        `questions.${questionIndex}.testCases.${testCaseIndex}.output`
+                      )}
                     />
                   </FormControl>
                   <FormMessage />
@@ -346,6 +374,7 @@ function RenderTestCases({ questionIndex }: Readonly<RenderTestCasesProps>) {
         );
       })}
       <Button
+        variant="outline"
         onClick={() => {
           append(sampleTestCase);
         }}

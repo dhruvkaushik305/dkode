@@ -4,7 +4,7 @@ import { auth, signIn } from "@/auth";
 import db from "@/db";
 import bcrypt from "bcryptjs";
 import { TestType } from "./types";
-import { TestFormType } from "./dashboard/classroom/[classroomId]/test/_components/TestFormHooks";
+import { TestFormType } from "@/components/ui/test-page";
 
 export async function createUserAction(formData: FormData) {
   try {
@@ -160,7 +160,10 @@ export async function createTestAction(
           create: testData.questions.map((question) => ({
             statement: question.statement,
             testCases: {
-              create: question.testCases,
+              create: question.testCases.map((testCase)=>({
+                  input: testCase.input.replace(/_/g, " "),
+                  output: testCase.output.replace(/_/g, " ")
+              }))
             },
           })),
         },
@@ -206,9 +209,12 @@ export async function editTestAction(
             where: { id: question.id },
             create: {
               statement: question.statement,
-              testCases: {
-                create: question.testCases,
-              },
+              testCases:{
+                create: question.testCases.map((testCase)=>({
+                    input: testCase.input.replace(/_/g, " "),
+                    output: testCase.output.replace(/_/g, " ")
+                }))
+              }
             },
             update: {
               statement: question.statement,
@@ -220,12 +226,12 @@ export async function editTestAction(
                 upsert: question.testCases.map((testCase) => ({
                   where: { id: testCase.id },
                   create: {
-                    input: testCase.input,
-                    output: testCase.output,
+                    input: testCase.input.replace(/_/g," "),
+                    output: testCase.output.replace(/_/g," "),
                   },
                   update: {
-                    input: testCase.input,
-                    output: testCase.output,
+                    input: testCase.input.replace(/_/g," "),
+                    output: testCase.output.replace(/_/g," "),
                   },
                 })),
               },
@@ -235,6 +241,7 @@ export async function editTestAction(
         classroomId,
       },
     });
+
     return { success: true, message: "Test Updated" };
   } catch (err) {
     console.error("The following error occured while editing the test", err);
