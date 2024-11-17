@@ -46,7 +46,7 @@ export default async function ClassroomPage({
   } catch (err) {
     console.error(
       "The following error occurred while fetching the classroom details",
-      err,
+      err
     );
   }
 
@@ -82,7 +82,7 @@ async function ClassroomInfo({ classroomInfo }: Readonly<ClassroomInfoProps>) {
   } catch (err) {
     console.error(
       "The following error occurred while fetching the creator name",
-      err,
+      err
     );
   }
 
@@ -127,19 +127,28 @@ async function RenderTests({ classroomId }: Readonly<RenderTestsProps>) {
   } catch (err) {
     console.error(
       "The following error occurred while fetching the tests for the classroom",
-      err,
+      err
     );
   }
   return (
-    <section>
+    <section className="h-full">
       <header className="text-3xl font-semibold p-2 border-b border-gray-300">
         Tests
       </header>
-      <section className="grid grid-cols-8 w-full mx-auto gap-6 p-4 rounded-lg">
-        {tests.map((test) => (
-          <TestCard key={test.id} test={test} />
-        ))}
-      </section>
+      {tests.length > 0 && (
+        <section className="grid grid-cols-8 w-full mx-auto gap-6 p-4 rounded-lg">
+          {tests.map((test) => (
+            <TestCard key={test.id} test={test} />
+          ))}
+        </section>
+      )}
+      {tests.length == 0 && (
+        <Link href={`/dashboard/classroom/${classroomId}/test/create`}>
+          <nav className="mt-5 text-blue-500 hover:underline text-center">
+            Create a test
+          </nav>
+        </Link>
+      )}
     </section>
   );
 }
@@ -154,7 +163,7 @@ function TestCard({ test }: Readonly<TestCardProps>) {
   const durationHours = Math.floor(durationMs / (1000 * 60 * 60));
 
   const durationMinutes = Math.floor(
-    (durationMs % (1000 * 60 * 60)) / (1000 * 60),
+    (durationMs % (1000 * 60 * 60)) / (1000 * 60)
   );
 
   return (
