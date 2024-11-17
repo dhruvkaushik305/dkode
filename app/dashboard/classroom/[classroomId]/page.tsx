@@ -17,33 +17,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Link from "next/link";
+import NotFound from "../../not-found";
+
 interface ClassroomPageProps {
   params: { classroomId: string };
 }
+
 export default async function ClassroomPage({
   params,
 }: Readonly<ClassroomPageProps>) {
   const classroomId = params.classroomId;
 
-  return (
-    <main className="h-full">
-      <Navbar />
-      <section className="h-full p-2 w-full max-w-screen-2xl mx-auto flex flex-col gap-4">
-        <ClassroomInfo classroomId={classroomId} />
-        <RenderTests classroomId={classroomId} />
-      </section>
-    </main>
-  );
-}
-
-interface ClassroomInfoProps {
-  classroomId: string;
-}
-
-async function ClassroomInfo({ classroomId }: Readonly<ClassroomInfoProps>) {
-  let classroomInfo: ClassroomWithStudentType | null = null;
-
-  let creatorName: string | undefined = undefined;
+  let classroomInfo: ClassroomWithStudentType | undefined = undefined;
 
   try {
     const queryClassroom = await db.classroom.findUnique({
@@ -55,23 +40,48 @@ async function ClassroomInfo({ classroomId }: Readonly<ClassroomInfoProps>) {
       },
     });
 
-    classroomInfo = queryClassroom;
-
     if (queryClassroom) {
-      const queryName = await db.user.findUnique({
-        where: {
-          id: queryClassroom.creatorId,
-        },
-        select: {
-          name: true,
-        },
-      });
-
-      creatorName = queryName?.name;
-    }
+      classroomInfo = queryClassroom;
+    } else return NotFound();
   } catch (err) {
     console.error(
-      "The following error occurred while fetching the classroom info",
+      "The following error occurred while fetching the classroom details",
+      err,
+    );
+  }
+
+  return (
+    <main className="h-full">
+      <Navbar />
+      <section className="h-full p-2 w-full max-w-screen-2xl mx-auto flex flex-col gap-4">
+        {classroomInfo && <ClassroomInfo classroomInfo={classroomInfo} />}
+        <RenderTests classroomId={classroomId} />
+      </section>
+    </main>
+  );
+}
+
+interface ClassroomInfoProps {
+  classroomInfo: ClassroomWithStudentType;
+}
+
+async function ClassroomInfo({ classroomInfo }: Readonly<ClassroomInfoProps>) {
+  let creatorName: string | undefined = undefined;
+
+  try {
+    const queryName = await db.user.findUnique({
+      where: {
+        id: classroomInfo.creatorId,
+      },
+      select: {
+        name: true,
+      },
+    });
+
+    creatorName = queryName?.name;
+  } catch (err) {
+    console.error(
+      "The following error occurred while fetching the creator name",
       err,
     );
   }
@@ -91,6 +101,7 @@ async function ClassroomInfo({ classroomId }: Readonly<ClassroomInfoProps>) {
     </section>
   );
 }
+
 interface RenderTestsProps {
   classroomId: string;
 }
