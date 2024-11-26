@@ -167,7 +167,10 @@ function TestCard({ test }: Readonly<TestCardProps>) {
   );
 
   return (
-    <div className="border border-gray-200 shadow-sm w-full p-4 rounded-sm flex flex-col gap-4 col-span-2 min-h-[8rem] justify-around">
+    <Link
+      href={`/dashboard/classroom/${test.classroomId}/test/${test.id}/1`}
+      className="border border-gray-200 shadow-sm w-full p-4 rounded-sm flex flex-col gap-4 col-span-2 min-h-[8rem] justify-around"
+    >
       <header className="text-xl flex items-center justify-between gap-1">
         <h2 className="w-full text-left hover:underline font-medium">
           {test.name}
@@ -216,6 +219,6 @@ function TestCard({ test }: Readonly<TestCardProps>) {
           </span>
         </p>
       </footer>
-    </div>
+    </Link>
   );
 }
