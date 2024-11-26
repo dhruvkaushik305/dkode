@@ -35,10 +35,11 @@ export default function SelectLanguage({
     changeLanguage(questionNo, language);
   };
 
+  //FIXME this language should be based on the language of the question
   return (
     <Select onValueChange={languageChangeHandler}>
       <SelectTrigger className="w-fit">
-        <SelectValue placeholder="Language" />
+        <SelectValue placeholder="Language" defaultValue={"cpp"} />
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="cpp">C++</SelectItem>

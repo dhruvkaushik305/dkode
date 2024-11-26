@@ -1,4 +1,5 @@
 import { TestCaseType } from "@/app/types";
+import RenderCodeEditor from "@/components/ui/code-editor";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -6,6 +7,7 @@ import {
 } from "@/components/ui/resizable";
 import SelectLanguage from "@/components/ui/selectLanguage";
 import db from "@/db";
+
 interface QuestionPageProps {
   params: { classroomId: string; testId: string; questionNumber: string };
 }
@@ -24,7 +26,9 @@ export default async function QuestionPage({
           />
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel>code content</ResizablePanel>
+        <ResizablePanel>
+          <RenderCodeEditor questionNumber={params.questionNumber} />
+        </ResizablePanel>
       </ResizablePanelGroup>
     </main>
   );
@@ -78,7 +82,7 @@ async function RenderQuestion({
 
     if (!query) throw new Error("why wasn't the testId verified by now");
 
-    questionContent = query.questions[questionNo - 1];
+    questionContent = query.questions[questionNo - 1]; //TODO There must be a way to do this better
   } catch (err) {
     console.error("Couldn't fetch the questions", err);
   }
