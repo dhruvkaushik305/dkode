@@ -40,3 +40,8 @@ export type TestCaseType = {
   visibility: boolean;
   questionId?: string;
 };
+
+export type SourceCodeType = {
+  language: string,
+  code: string
+}
